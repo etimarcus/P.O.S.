@@ -3,7 +3,7 @@
  * Main application with quadrant layout
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { UpperLeft, UpperRight, LowerLeft, LowerRight } from './components/quadrants'
 import './App.css'
 
@@ -11,6 +11,8 @@ function App() {
   const [infoMessage, setInfoMessage] = useState('')
   const [infoVisible, setInfoVisible] = useState(false)
   const [expandedQuadrant, setExpandedQuadrant] = useState(null)
+  const [centerZoom, setCenterZoom] = useState(null) // { progress: 0-1, startTime }
+  const [showFinances, setShowFinances] = useState(false)
 
   const showInfo = useCallback((message) => {
     setInfoMessage(message)
@@ -32,8 +34,40 @@ function App() {
   }, [showInfo])
 
   const handleCenterClick = () => {
-    showInfo('💰 Finanzas Personales — Módulo en desarrollo')
-    // TODO: Open personal finances module
+    // Start zoom animation
+    setCenterZoom({ progress: 0, startTime: performance.now() })
+  }
+
+  // Center zoom animation effect
+  useEffect(() => {
+    if (!centerZoom) return
+
+    const duration = 500 // ms
+    let animationId
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - centerZoom.startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Ease out cubic for smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 3)
+
+      if (progress < 1) {
+        setCenterZoom(prev => ({ ...prev, progress: eased }))
+        animationId = requestAnimationFrame(animate)
+      } else {
+        // Animation complete - show finances view
+        setCenterZoom(null)
+        setShowFinances(true)
+      }
+    }
+
+    animationId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationId)
+  }, [centerZoom?.startTime])
+
+  const handleBackFromFinances = () => {
+    setShowFinances(false)
   }
 
   const handleExpand = useCallback((quadrant) => {
@@ -43,6 +77,21 @@ function App() {
   const handleCollapse = useCallback(() => {
     setExpandedQuadrant(null)
   }, [])
+
+  // Finances view (center zoom destination)
+  if (showFinances) {
+    return (
+      <div className="app finances-view">
+        <button className="back-button" onClick={handleBackFromFinances}>
+          ← Back
+        </button>
+        <div className="finances-container">
+          <h1>Personal Finances</h1>
+          <p>Module under development</p>
+        </div>
+      </div>
+    )
+  }
 
   // Expanded view
   if (expandedQuadrant) {
@@ -91,6 +140,17 @@ function App() {
       <div className={`info-panel ${infoVisible ? 'visible' : ''}`}>
         {infoMessage}
       </div>
+
+      {/* Center zoom animation overlay */}
+      {centerZoom && (
+        <div
+          className="center-zoom-overlay"
+          style={{
+            transform: `translate(-50%, -50%) scale(${1 + centerZoom.progress * 100})`,
+            opacity: Math.min(1, centerZoom.progress * 2)
+          }}
+        />
+      )}
     </div>
   )
 }

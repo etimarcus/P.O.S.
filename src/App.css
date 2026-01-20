@@ -75,6 +75,72 @@
 }
 
 /* ═══════════════════════════════════════════
+   CENTER ZOOM ANIMATION
+═══════════════════════════════════════════ */
+
+.center-zoom-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  background: var(--accent-gold);
+  border-radius: 50%;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   FINANCES VIEW
+═══════════════════════════════════════════ */
+
+.finances-view {
+  background: var(--accent-gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 3rem;
+}
+
+.finances-view .back-button {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.finances-view .back-button:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.finances-container {
+  text-align: center;
+  color: #000;
+}
+
+.finances-container h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.finances-container p {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════════
    QUADRANT BASE STYLES
 ═══════════════════════════════════════════ */
 

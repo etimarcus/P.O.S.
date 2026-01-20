@@ -224,7 +224,7 @@ export function CellView({ onNavigate }) {
     // =====================================================
     // SCALE to fit view
     // =====================================================
-    const padding = 30
+    const padding = 12
     const availableSize = Math.min(W, H) - padding * 2
     const scale = availableSize / (bambooOuterRadiusM * 2)
     
