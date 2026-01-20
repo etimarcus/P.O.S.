@@ -20,6 +20,7 @@ export function CellView({ onNavigate }) {
   const canvasRef = useRef(null)
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
   const [hoverTarget, setHoverTarget] = useState(null) // { type: 'guild'|'school'|'compound', index?, guildIndex? }
+  const [zoomAnimation, setZoomAnimation] = useState(null) // { progress: 0-1, startTime }
   const sim = useSimulation()
 
   // Store geometry for hit testing
@@ -1259,8 +1260,19 @@ export function CellView({ onNavigate }) {
       ctx.restore()
     }
 
+    // === 10. ZOOM ANIMATION OVERLAY ===
+    if (zoomAnimation && zoomAnimation.progress > 0) {
+      const maxRadius = Math.sqrt(W * W + H * H) // Diagonal of canvas
+      const currentRadius = schoolR + (maxRadius - schoolR) * zoomAnimation.progress
+
+      ctx.fillStyle = '#f59e0b' // Golden yellow
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, currentRadius, 0, Math.PI * 2)
+      ctx.fill()
+    }
+
   }, [canvasSize, sim.state, sim.systems?.spatial, sim.systems?.grazing, sim.systems?.vegetation,
-      sim.systems?.bamboo, sim.systems?.cattle, sim.systems?.dairy, sim.systems?.school, hoverTarget])
+      sim.systems?.bamboo, sim.systems?.cattle, sim.systems?.dairy, sim.systems?.school, hoverTarget, zoomAnimation])
 
   // === HIT TESTING ===
   const getHitTarget = useCallback((e) => {
@@ -1450,13 +1462,42 @@ export function CellView({ onNavigate }) {
     if (!target || !onNavigate) return
 
     if (target.type === 'school') {
-      onNavigate('school')
+      // Start zoom animation
+      setZoomAnimation({ progress: 0, startTime: performance.now() })
     } else if (target.type === 'guild') {
       onNavigate('guild')
     } else if (target.type === 'compound') {
       onNavigate('compound')
     }
   }, [getHitTarget, onNavigate])
+
+  // Zoom animation effect
+  useEffect(() => {
+    if (!zoomAnimation) return
+
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const duration = 600 // ms
+    const animate = (currentTime) => {
+      const elapsed = currentTime - zoomAnimation.startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Ease out cubic for smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 3)
+
+      if (progress < 1) {
+        setZoomAnimation(prev => ({ ...prev, progress: eased }))
+        requestAnimationFrame(animate)
+      } else {
+        // Animation complete - navigate
+        setZoomAnimation(null)
+        onNavigate?.('school')
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [zoomAnimation?.startTime, onNavigate])
 
   // Determine cursor style
   const cursorStyle = hoverTarget ? 'pointer' : 'default'
