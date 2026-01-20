@@ -1,0 +1,91 @@
+/* ═══════════════════════════════════════════
+   UL - VITRUVIAN MAN (Identity Layers)
+═══════════════════════════════════════════ */
+
+.quadrant-ul {
+  background: linear-gradient(135deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+}
+
+.quadrant-ul .quadrant-header {
+  align-items: flex-start;
+}
+
+.quadrant-ul .quadrant-label {
+  text-align: left;
+}
+
+.vitruvian-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+}
+
+.vitruvian-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background-image: url('/vitruvian.jpg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.identity-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 2px solid;
+  transition: all 0.3s ease;
+  animation: ringPulse 4s ease-in-out infinite;
+}
+
+.identity-ring:hover {
+  border-width: 3px;
+  box-shadow: 0 0 25px currentColor;
+}
+
+.ring-bio {
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+}
+
+.ring-cred {
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
+  animation-delay: 0.5s;
+}
+
+.ring-peer {
+  width: 180px;
+  height: 180px;
+  transform: translate(-50%, -50%);
+  animation-delay: 1s;
+}
+
+.ring-label {
+  position: absolute;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: rgba(10, 15, 10, 0.85);
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes ringPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}

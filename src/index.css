@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-dark: #0a0f0a;
+  --bg-medium: #1a2f1a;
+  --accent-gold: #c9a227;
+  --accent-gold-dim: rgba(201, 162, 39, 0.3);
+  --accent-cream: #f5f0e1;
+  --text-light: #e8e4d9;
+  --text-muted: rgba(232, 228, 217, 0.6);
+  --quadrant-border: rgba(255, 255, 255, 0.9);
+  --glass-bg: rgba(10, 15, 10, 0.85);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  background: var(--bg-dark);
+  min-height: 100vh;
+  overflow: hidden;
+  color: var(--text-light);
+}
+
+#root {
+  min-height: 100vh;
+}

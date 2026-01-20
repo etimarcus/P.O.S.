@@ -1,0 +1,99 @@
+/* ═══════════════════════════════════════════
+   LL - HANDS (Giving/Receiving)
+═══════════════════════════════════════════ */
+
+.quadrant-ll {
+  background: linear-gradient(45deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+}
+
+.hands-container {
+  position: relative;
+  width: 350px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hand {
+  position: absolute;
+  width: 140px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hand:hover {
+  transform: scale(1.05);
+}
+
+.hand-giving {
+  left: 10px;
+}
+
+.hand-receiving {
+  right: 10px;
+}
+
+.hand-icon {
+  font-size: 5rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 10px rgba(201, 162, 39, 0.3));
+}
+
+.hand-giving .hand-icon {
+  transform: scaleX(-1);
+}
+
+.hand-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-gold);
+}
+
+.hand-stats {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.hands-divider {
+  width: 2px;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--accent-gold), transparent);
+}
+
+.contribution-flow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.flow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+  animation: flowPulse 2s ease-in-out infinite;
+}
+
+.flow-dot:nth-child(2) { animation-delay: 0.3s; }
+.flow-dot:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes flowPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}

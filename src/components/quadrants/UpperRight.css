@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════
+   UR - WORD CLOUD (Issues) - Hierarchical Navigation
+═══════════════════════════════════════════ */
+
+.quadrant-ur {
+  background: linear-gradient(225deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+}
+
+.quadrant-ur .quadrant-header {
+  flex-direction: row-reverse;
+}
+
+.quadrant-ur .quadrant-label {
+  text-align: right;
+}
+
+.quadrant-ur .quadrant-subtitle {
+  text-align: right;
+}
+
+/* ═══════════════════════════════════════════
+   BREADCRUMB NAVIGATION
+═══════════════════════════════════════════ */
+
+.breadcrumb {
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  z-index: 10;
+}
+
+.breadcrumb-separator {
+  color: var(--accent-gold-dim);
+  margin: 0 0.25rem;
+}
+
+.breadcrumb-item {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-item:hover {
+  color: var(--accent-gold);
+}
+
+.breadcrumb-item.active {
+  color: var(--text-light);
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════
+   WORD CLOUD CONTAINER
+═══════════════════════════════════════════ */
+
+.wordcloud-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.wordcloud-container.transitioning {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* ═══════════════════════════════════════════
+   WORD ITEMS
+═══════════════════════════════════════════ */
+
+.word-item {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.2rem 0.5rem;
+  position: relative;
+  animation: wordFadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+@keyframes wordFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.word-item:hover {
+  color: var(--accent-gold);
+  text-shadow: 0 0 15px var(--accent-gold);
+  transform: scale(1.1);
+}
+
+/* Words with children get a special indicator */
+.word-item.has-children {
+  padding-right: 1.2rem;
+}
+
+.word-item.has-children:hover {
+  transform: scale(1.1) translateX(3px);
+}
+
+.word-indicator {
+  position: absolute;
+  right: 0.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8em;
+  color: var(--accent-gold);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.word-item.has-children:hover .word-indicator {
+  opacity: 1;
+  transform: translateY(-50%) translateX(3px);
+}
+
+/* Size variations */
+.word-xl {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.word-lg {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.word-md {
+  font-size: 1.2rem;
+}
+
+.word-sm {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.word-xs {
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+/* Restore opacity on animation complete */
+.word-sm,
+.word-xs {
+  animation: wordFadeInMuted 0.4s ease forwards;
+}
+
+@keyframes wordFadeInMuted {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
+}
+
+.word-xs {
+  animation: wordFadeInDim 0.4s ease forwards;
+}
+
+@keyframes wordFadeInDim {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   BACK HINT
+═══════════════════════════════════════════ */
+
+.back-hint {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--accent-gold-dim);
+  animation: backHintPulse 2s ease-in-out infinite;
+}
+
+@keyframes backHintPulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

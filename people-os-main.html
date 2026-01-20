@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C.O.S. — Community Operating System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0f0a;
+            --bg-medium: #1a2f1a;
+            --accent-gold: #c9a227;
+            --accent-gold-dim: rgba(201, 162, 39, 0.3);
+            --accent-cream: #f5f0e1;
+            --text-light: #e8e4d9;
+            --text-muted: rgba(232, 228, 217, 0.6);
+            --quadrant-border: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(10, 15, 10, 0.85);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text-light);
+        }
+
+        /* ═══════════════════════════════════════════
+           MAIN GRID LAYOUT
+        ═══════════════════════════════════════════ */
+        .os-container {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        /* Cross dividers */
+        .cross-vertical {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: var(--quadrant-border);
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .cross-horizontal {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 3px;
+            background: var(--quadrant-border);
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .cross-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            z-index: 101;
+            box-shadow: 0 0 30px var(--accent-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cross-center:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            box-shadow: 0 0 50px var(--accent-gold);
+        }
+
+        /* ═══════════════════════════════════════════
+           QUADRANT BASE STYLES
+        ═══════════════════════════════════════════ */
+        .quadrant {
+            position: relative;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .quadrant:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .quadrant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            z-index: 10;
+        }
+
+        .quadrant-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+        }
+
+        .quadrant-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .quadrant-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Click hint */
+        .click-hint {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .quadrant:hover .click-hint {
+            opacity: 1;
+        }
+
+        /* ═══════════════════════════════════════════
+           UL - VITRUVIAN MAN (Identity Layers)
+        ═══════════════════════════════════════════ */
+        #quadrant-ul {
+            background: linear-gradient(135deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+        }
+
+        #quadrant-ul .quadrant-header {
+            align-items: flex-start;
+        }
+
+        #quadrant-ul .quadrant-label {
+            text-align: left;
+        }
+
+        .vitruvian-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+
+        .vitruvian-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            background-image: url('vitruvian.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .identity-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+
+        .identity-ring:hover {
+            border-width: 3px;
+            box-shadow: 0 0 25px currentColor;
+        }
+
+        .ring-bio {
+            width: 300px;
+            height: 300px;
+            transform: translate(-50%, -50%);
+            border-color: #ef5350;
+        }
+
+        .ring-cred {
+            width: 240px;
+            height: 240px;
+            transform: translate(-50%, -50%);
+            border-color: #42a5f5;
+        }
+
+        .ring-peer {
+            width: 180px;
+            height: 180px;
+            transform: translate(-50%, -50%);
+            border-color: #66bb6a;
+        }
+
+        .ring-label {
+            position: absolute;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: var(--glass-bg);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .identity-ring:hover .ring-label {
+            opacity: 1;
+        }
+
+        .ring-bio .ring-label {
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ef5350;
+        }
+
+        .ring-cred .ring-label {
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #42a5f5;
+        }
+
+        .ring-peer .ring-label {
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #66bb6a;
+        }
+
+        /* ═══════════════════════════════════════════
+           UR - WORD CLOUD (Issues)
+        ═══════════════════════════════════════════ */
+        #quadrant-ur {
+            background: linear-gradient(225deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+        }
+
+        #quadrant-ur .quadrant-header {
+            flex-direction: row-reverse;
+        }
+
+        #quadrant-ur .quadrant-label {
+            text-align: right;
+        }
+
+        #quadrant-ur .quadrant-subtitle {
+            text-align: right;
+        }
+
+        .wordcloud-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .word-item {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .word-item:hover {
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px var(--accent-gold);
+            transform: scale(1.1);
+        }
+
+        .word-xl { font-size: 2rem; font-weight: 600; }
+        .word-lg { font-size: 1.5rem; font-weight: 500; }
+        .word-md { font-size: 1.2rem; }
+        .word-sm { font-size: 1rem; opacity: 0.8; }
+        .word-xs { font-size: 0.85rem; opacity: 0.6; }
+
+        .breadcrumb {
+            position: absolute;
+            top: 0.5rem;
+            left: 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb span {
+            cursor: pointer;
+        }
+
+        .breadcrumb span:hover {
+            color: var(--accent-gold);
+        }
+
+        /* ═══════════════════════════════════════════
+           LL - HANDS (Giving/Receiving)
+        ═══════════════════════════════════════════ */
+        #quadrant-ll {
+            background: linear-gradient(45deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+        }
+
+        .hands-container {
+            position: relative;
+            width: 350px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hand {
+            position: absolute;
+            width: 140px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hand:hover {
+            transform: scale(1.05);
+        }
+
+        .hand-giving {
+            left: 10px;
+        }
+
+        .hand-receiving {
+            right: 10px;
+        }
+
+        .hand-icon {
+            font-size: 5rem;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px rgba(201, 162, 39, 0.3));
+        }
+
+        .hand-giving .hand-icon {
+            transform: scaleX(-1);
+        }
+
+        .hand-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-gold);
+        }
+
+        .hand-stats {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .hands-divider {
+            width: 2px;
+            height: 120px;
+            background: linear-gradient(to bottom, transparent, var(--accent-gold), transparent);
+        }
+
+        .contribution-flow {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .flow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            animation: flowPulse 2s ease-in-out infinite;
+        }
+
+        .flow-dot:nth-child(2) { animation-delay: 0.3s; }
+        .flow-dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes flowPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ═══════════════════════════════════════════
+           LR - CELL CANVAS (Bird's Eye View)
+        ═══════════════════════════════════════════ */
+        #quadrant-lr {
+            background: linear-gradient(315deg, rgba(15, 25, 35, 0.95), rgba(10, 15, 10, 0.95));
+        }
+
+        #quadrant-lr .quadrant-header {
+            flex-direction: row-reverse;
+        }
+
+        #quadrant-lr .quadrant-label {
+            text-align: right;
+        }
+
+        #quadrant-lr .quadrant-subtitle {
+            text-align: right;
+        }
+
+        .cell-canvas {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+
+        .cell-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid;
+        }
+
+        /* Outer ring - forest/buffer */
+        .cell-outer {
+            width: 300px;
+            height: 300px;
+            border-color: #2d5a2d;
+            background: radial-gradient(circle, transparent 85%, rgba(45, 90, 45, 0.3) 100%);
+        }
+
+        /* Yellow ring - pathways */
+        .cell-paths {
+            width: 260px;
+            height: 260px;
+            border-color: #c9a227;
+            border-width: 8px;
+            opacity: 0.7;
+        }
+
+        /* Green agricultural ring */
+        .cell-agriculture {
+            width: 220px;
+            height: 220px;
+            border-color: #7cb342;
+            background: repeating-conic-gradient(
+                from 0deg,
+                rgba(124, 179, 66, 0.2) 0deg 30deg,
+                rgba(100, 150, 50, 0.15) 30deg 60deg
+            );
+        }
+
+        /* Inner green - common areas */
+        .cell-common {
+            width: 140px;
+            height: 140px;
+            border-color: #558b2f;
+            background: radial-gradient(circle, rgba(85, 139, 47, 0.4) 0%, rgba(85, 139, 47, 0.2) 100%);
+        }
+
+        /* Center - Guild Kernel */
+        .cell-kernel {
+            width: 40px;
+            height: 40px;
+            border-color: var(--accent-gold);
+            background: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cell-kernel:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 30px rgba(201, 162, 39, 0.8);
+        }
+
+        /* Radial dividers */
+        .cell-divider {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 150px;
+            background: rgba(100, 180, 255, 0.4);
+            transform-origin: bottom center;
+        }
+
+        /* Housing pods */
+        .housing-pod {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(180, 140, 100, 0.6);
+            border: 2px solid rgba(180, 140, 100, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .housing-pod:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(180, 140, 100, 0.5);
+        }
+
+        /* Water feature */
+        .water-feature {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 30px;
+            background: rgba(100, 150, 200, 0.4);
+            border-radius: 50%;
+            border: 1px solid rgba(100, 150, 200, 0.6);
+        }
+
+        /* Cell label */
+        .cell-name {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* ═══════════════════════════════════════════
+           INFO PANEL
+        ═══════════════════════════════════════════ */
+        .info-panel {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--accent-gold-dim);
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 200;
+        }
+
+        .info-panel.visible {
+            opacity: 1;
+        }
+
+        /* ═══════════════════════════════════════════
+           ANIMATIONS
+        ═══════════════════════════════════════════ */
+        @keyframes ringPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .identity-ring {
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+
+        .ring-cred { animation-delay: 0.5s; }
+        .ring-peer { animation-delay: 1s; }
+    </style>
+</head>
+<body>
+    <!-- Cross dividers -->
+    <div class="cross-vertical"></div>
+    <div class="cross-horizontal"></div>
+    <div class="cross-center" onclick="showInfo('C.O.S. — Community Operating System v0.1')"></div>
+
+    <div class="os-container">
+        <!-- ═══════════════════════════════════════════
+             UL: I - Interior Individual (Vitruvian)
+        ═══════════════════════════════════════════ -->
+        <div class="quadrant" id="quadrant-ul" onclick="navigateTo('ul-identity-layers.html')">
+            <div class="quadrant-header">
+                <div>
+                    <div class="quadrant-label">I</div>
+                    <div class="quadrant-subtitle">Interior · Individual</div>
+                </div>
+            </div>
+            <div class="quadrant-content">
+                <div class="vitruvian-container">
+                    <!-- Identity rings -->
+                    <div class="identity-ring ring-bio">
+                        <span class="ring-label">Biológica</span>
+                    </div>
+                    <div class="identity-ring ring-cred">
+                        <span class="ring-label">Credenciales</span>
+                    </div>
+                    <div class="identity-ring ring-peer">
+                        <span class="ring-label">Percepción</span>
+                    </div>
+                    <!-- Vitruvian image -->
+                    <div class="vitruvian-image"></div>
+                </div>
+            </div>
+            <span class="click-hint">Click para explorar →</span>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             UR: IT - Exterior Individual (Word Cloud)
+        ═══════════════════════════════════════════ -->
+        <div class="quadrant" id="quadrant-ur" onclick="navigateTo('ur-issues-cloud.html')">
+            <div class="quadrant-header">
+                <div>
+                    <div class="quadrant-label">IT</div>
+                    <div class="quadrant-subtitle">Exterior · Individual</div>
+                </div>
+            </div>
+            <div class="quadrant-content">
+                <div class="breadcrumb"><span>topics</span></div>
+                <div class="wordcloud-container" id="wordcloud">
+                    <span class="word-item word-xl">governance</span>
+                    <span class="word-item word-lg">community</span>
+                    <span class="word-item word-lg">energy</span>
+                    <span class="word-item word-md">education</span>
+                    <span class="word-item word-md">economy</span>
+                    <span class="word-item word-md">food</span>
+                    <span class="word-item word-sm">water</span>
+                    <span class="word-item word-sm">housing</span>
+                    <span class="word-item word-sm">health</span>
+                    <span class="word-item word-xs">transport</span>
+                    <span class="word-item word-xs">waste</span>
+                    <span class="word-item word-md">culture</span>
+                    <span class="word-item word-sm">conflict</span>
+                    <span class="word-item word-xs">legal</span>
+                    <span class="word-item word-sm">technology</span>
+                </div>
+            </div>
+            <span class="click-hint">Click para explorar →</span>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             LL: WE - Interior Colectivo (Hands)
+        ═══════════════════════════════════════════ -->
+        <div class="quadrant" id="quadrant-ll" onclick="navigateTo('ll-contributions.html')">
+            <div class="quadrant-header">
+                <div>
+                    <div class="quadrant-label">WE</div>
+                    <div class="quadrant-subtitle">Interior · Colectivo</div>
+                </div>
+            </div>
+            <div class="quadrant-content">
+                <div class="hands-container">
+                    <div class="hand hand-giving">
+                        <span class="hand-icon">🤲</span>
+                        <span class="hand-label">Dar</span>
+                        <span class="hand-stats">127 contribuciones</span>
+                    </div>
+                    
+                    <div class="hands-divider"></div>
+                    
+                    <div class="hand hand-receiving">
+                        <span class="hand-icon">🤲</span>
+                        <span class="hand-label">Recibir</span>
+                        <span class="hand-stats">98 recepciones</span>
+                    </div>
+
+                    <div class="contribution-flow">
+                        <div class="flow-dot"></div>
+                        <div class="flow-dot"></div>
+                        <div class="flow-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <span class="click-hint">Click para explorar →</span>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             LR: ITS - Exterior Colectivo (Cell Canvas)
+        ═══════════════════════════════════════════ -->
+        <div class="quadrant" id="quadrant-lr" onclick="navigateTo('lr-cell-canvas.html')">
+            <div class="quadrant-header">
+                <div>
+                    <div class="quadrant-label">ITS</div>
+                    <div class="quadrant-subtitle">Exterior · Colectivo</div>
+                </div>
+            </div>
+            <div class="quadrant-content">
+                <div class="cell-canvas">
+                    <!-- Concentric rings -->
+                    <div class="cell-ring cell-outer"></div>
+                    <div class="cell-ring cell-paths"></div>
+                    <div class="cell-ring cell-agriculture"></div>
+                    <div class="cell-ring cell-common"></div>
+                    <div class="cell-ring cell-kernel"></div>
+
+                    <!-- Radial dividers -->
+                    <div class="cell-divider" style="transform: rotate(0deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(30deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(60deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(90deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(120deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(150deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(180deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(210deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(240deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(270deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(300deg) translateY(-150px);"></div>
+                    <div class="cell-divider" style="transform: rotate(330deg) translateY(-150px);"></div>
+
+                    <!-- Housing pods around the agriculture ring -->
+                    <div class="housing-pod" style="top: 25%; left: 80%;"></div>
+                    <div class="housing-pod" style="top: 50%; left: 88%;"></div>
+                    <div class="housing-pod" style="top: 75%; left: 80%;"></div>
+                    <div class="housing-pod" style="top: 85%; left: 50%;"></div>
+                    <div class="housing-pod" style="top: 75%; left: 20%;"></div>
+                    <div class="housing-pod" style="top: 50%; left: 12%;"></div>
+                    <div class="housing-pod" style="top: 25%; left: 20%;"></div>
+
+                    <!-- Water feature at top -->
+                    <div class="water-feature"></div>
+
+                    <span class="cell-name">Célula Rocha Norte</span>
+                </div>
+            </div>
+            <span class="click-hint">Click para explorar →</span>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="info-panel"></div>
+
+    <script>
+        function showInfo(message) {
+            const panel = document.getElementById('info-panel');
+            panel.textContent = message;
+            panel.classList.add('visible');
+            
+            clearTimeout(window.infoPanelTimeout);
+            window.infoPanelTimeout = setTimeout(() => {
+                panel.classList.remove('visible');
+            }, 3000);
+        }
+
+        function navigateTo(page) {
+            // For now, show info. In production, would navigate to page
+            const pageNames = {
+                'ul-identity-layers.html': 'UL: Capas de Identidad — Identity, Avatars, Roles, Tasks',
+                'ur-issues-cloud.html': 'UR: Nube de Issues — Topics → Issues → Argument Maps',
+                'll-contributions.html': 'LL: Contribuciones — Dar & Recibir, Issues Cloud, Repository',
+                'lr-cell-canvas.html': 'LR: Vista de Célula — Infraestructura, Guild Kernel, Compounds'
+            };
+            showInfo(pageNames[page] || page);
+            
+            // Uncomment for actual navigation:
+            // window.location.href = page;
+        }
+
+        // Word cloud hover effects
+        document.querySelectorAll('.word-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showInfo(`Topic: ${item.textContent} → Click cuadrante para ver issues`);
+            });
+        });
+
+        // Housing pod hover
+        document.querySelectorAll('.housing-pod').forEach((pod, i) => {
+            pod.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showInfo(`Compound ${String.fromCharCode(65 + i)}: Unidades habitacionales`);
+            });
+        });
+
+        // Initial message
+        setTimeout(() => {
+            showInfo('C.O.S. — Click en cualquier cuadrante para explorar');
+        }, 500);
+    </script>
+</body>
+</html>

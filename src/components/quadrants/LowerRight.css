@@ -1,0 +1,140 @@
+/* ═══════════════════════════════════════════
+   LR - CELL CANVAS (Bird's Eye View)
+═══════════════════════════════════════════ */
+
+.quadrant-lr {
+  background: linear-gradient(315deg, rgba(15, 25, 35, 0.95), rgba(10, 15, 10, 0.95));
+}
+
+.quadrant-lr .quadrant-header {
+  flex-direction: row-reverse;
+}
+
+.quadrant-lr .quadrant-label {
+  text-align: right;
+}
+
+.quadrant-lr .quadrant-subtitle {
+  text-align: right;
+}
+
+.cell-canvas {
+  position: relative;
+  width: 320px;
+  height: 320px;
+}
+
+.cell-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+/* Outer ring - forest/buffer */
+.cell-outer {
+  width: 300px;
+  height: 300px;
+  border-color: #2d5a2d;
+  background: radial-gradient(circle, transparent 85%, rgba(45, 90, 45, 0.3) 100%);
+}
+
+/* Yellow ring - pathways */
+.cell-paths {
+  width: 260px;
+  height: 260px;
+  border-color: #c9a227;
+  border-width: 8px;
+  opacity: 0.7;
+}
+
+/* Green agricultural ring */
+.cell-agriculture {
+  width: 220px;
+  height: 220px;
+  border-color: #7cb342;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(124, 179, 66, 0.2) 0deg 30deg,
+    rgba(100, 150, 50, 0.15) 30deg 60deg
+  );
+}
+
+/* Inner green - common areas */
+.cell-common {
+  width: 140px;
+  height: 140px;
+  border-color: #558b2f;
+  background: radial-gradient(circle, rgba(85, 139, 47, 0.4) 0%, rgba(85, 139, 47, 0.2) 100%);
+}
+
+/* Center - Guild Kernel */
+.cell-kernel {
+  width: 40px;
+  height: 40px;
+  border-color: var(--accent-gold);
+  background: var(--accent-gold);
+  box-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cell-kernel:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 0 30px rgba(201, 162, 39, 0.8);
+}
+
+/* Radial dividers */
+.cell-divider {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 150px;
+  background: rgba(100, 180, 255, 0.4);
+  transform-origin: bottom center;
+}
+
+/* Housing pods */
+.housing-pod {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(180, 140, 100, 0.6);
+  border: 2px solid rgba(180, 140, 100, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.housing-pod:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 15px rgba(180, 140, 100, 0.5);
+}
+
+/* Water feature */
+.water-feature {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 30px;
+  background: rgba(100, 150, 200, 0.4);
+  border-radius: 50%;
+  border: 1px solid rgba(100, 150, 200, 0.6);
+}
+
+/* Cell label */
+.cell-name {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
