@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════ */
 
 .quadrant-lr {
-  background: linear-gradient(315deg, rgba(15, 25, 35, 0.95), rgba(10, 15, 10, 0.95));
+  background: #0a0a12;
 }
 
 .quadrant-lr .quadrant-header {
@@ -16,6 +16,191 @@
 
 .quadrant-lr .quadrant-subtitle {
   text-align: right;
+}
+
+/* Container for CellView canvas */
+.cell-view-container {
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+   LAYER INDICATOR
+═══════════════════════════════════════════ */
+
+.its-layer-indicator {
+  position: absolute;
+  top: 0.3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.its-layer-indicator .layer-icon {
+  font-size: 1.1rem;
+}
+
+.its-layer-indicator .layer-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ═══════════════════════════════════════════
+   OVERLAYS
+═══════════════════════════════════════════ */
+
+.cell-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.urgency-svg,
+.activity-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Pulse animation for active work */
+.pulse-ring {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    r: 4;
+  }
+  50% {
+    opacity: 0.8;
+    r: 6;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   INFO BUBBLE
+═══════════════════════════════════════════ */
+
+.its-info-bubble {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 20, 25, 0.95);
+  border: 1px solid var(--accent-gold-dim, rgba(201, 162, 39, 0.3));
+  border-radius: 12px;
+  padding: 1.25rem;
+  min-width: 260px;
+  max-width: 320px;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+.its-info-bubble h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+  margin: 0 0 1rem 0;
+  padding-right: 1.5rem;
+}
+
+.its-info-bubble .bubble-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-muted, #888);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.its-info-bubble .bubble-close:hover {
+  color: var(--accent-gold, #c9a227);
+}
+
+.bubble-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bubble-section:last-of-type {
+  border-bottom: none;
+}
+
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-light, #e8e4d9);
+  text-align: right;
+  max-width: 60%;
+}
+
+.tasks-section {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.tasks-list {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.tasks-list li {
+  margin-bottom: 0.3rem;
+}
+
+.bubble-alerts {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.alert-item {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: #ef4444;
+  padding: 0.4rem 0.6rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+}
+
+.alert-item:last-child {
+  margin-bottom: 0;
 }
 
 .cell-canvas {

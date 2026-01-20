@@ -1,33 +1,78 @@
 /**
  * Lower Left Quadrant - "WE" Interior Collective
- * Hands - Giving & Receiving Contributions
- * Visual hand template with words on fingers
+ * Hands - Giving & Sacrificing for Action
+ *
+ * Left hand (DAR): Dimensions of human effort in action
+ * - Effort, Motus, Voluntas, Cognito, Tempus
+ * - Clicking shows tasks characterized by that dimension
+ *
+ * Right hand (SACRIFICAR): Opportunity cost - what you sacrifice
+ * - Health: Sleep, nutrition, physical activity neglected
+ * - Social: Friendships and relationships not cultivated
+ * - Work: Professional commitments unfulfilled
+ * - Career: Personal growth/vocational search abandoned
+ * - Family: Family presence and time lost
+ *
+ * The sacrifice coefficient acts as a multiplier for action value
+ * Third-party validations can confirm sacrifices to increase the coefficient
  */
 
 import { useState, useCallback } from 'react'
+import { supabase } from '../../supabaseClient'
 import './LowerLeft.css'
 
-// Give hand words (left hand - palm facing viewer)
+// Left hand (Give/Dar) = Dimensions of effort
 const GIVE_WORDS = [
-  { id: 'effort', text: 'Effort', finger: 'thumb' },
-  { id: 'motus', text: 'Motus', finger: 'index' },
-  { id: 'voluntas', text: 'Voluntas', finger: 'middle' },
-  { id: 'cognito', text: 'Cognito', finger: 'ring' },
-  { id: 'tempus', text: 'Tempus', finger: 'pinky' }
+  { id: 'effort', text: 'Labor', position: { x: -2.2, y: 36.2 }, size: 1.20, description: 'Esfuerzo físico y mental' },
+  { id: 'motus', text: 'Sympathia', position: { x: -3.0, y: 14.3 }, size: 1.20, description: 'Movimiento y acción' },
+  { id: 'voluntas', text: 'Voluntas', position: { x: 9.7, y: 0.3 }, size: 1.20, description: 'Voluntad y determinación' },
+  { id: 'cognito', text: 'Cognitio', position: { x: 28.8, y: 2.4 }, size: 1.10, description: 'Conocimiento y pensamiento' },
+  { id: 'tempus', text: 'Tempus', position: { x: 38.7, y: 27.3 }, size: 1.20, description: 'Tiempo invertido' }
 ]
 
-// Receive hand words (right hand - palm facing viewer)
-const RECEIVE_WORDS = [
-  { id: 'health', text: 'Health', finger: 'thumb' },
-  { id: 'social', text: 'Social', finger: 'index' },
-  { id: 'work', text: 'Work', finger: 'middle' },
-  { id: 'career', text: 'Career', finger: 'ring' },
-  { id: 'family', text: 'Family', finger: 'pinky' }
+// Right hand (Sacrifice) = Opportunity cost areas
+const SACRIFICE_WORDS = [
+  { id: 'health', text: 'Salus', position: { x: 100.5, y: 37.8 }, size: 1.50, description: 'Sueño, alimentación y actividad física que descuidas', costField: 'health_cost', weightField: 'health_weight', contextField: 'health_context' },
+  { id: 'social', text: 'Societas', position: { x: 99.3, y: 16.8 }, size: 1.40, description: 'Amistades y relaciones que no cultivas', costField: 'social_cost', weightField: 'social_weight', contextField: 'social_context' },
+  { id: 'work', text: 'Opus', position: { x: 90.3, y: 3.9 }, size: 1.40, description: 'Compromisos laborales que incumples', costField: 'work_cost', weightField: 'work_weight', contextField: 'work_context' },
+  { id: 'career', text: 'Vocatio', position: { x: 73.8, y: 2.4 }, size: 1.50, description: 'Búsqueda vocacional que abandonas', costField: 'career_cost', weightField: 'career_weight', contextField: 'career_context' },
+  { id: 'family', text: 'Familia', position: { x: 59.7, y: 28.0 }, size: 1.50, description: 'Presencia familiar que pierdes', costField: 'family_cost', weightField: 'family_weight', contextField: 'family_context' }
 ]
 
-export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded }) {
-  const [selectedWord, setSelectedWord] = useState(null)
-  const [hoveredHand, setHoveredHand] = useState(null)
+// Dimension colors (left hand)
+const DIMENSION_COLORS = {
+  effort: '#ff6b6b',
+  motus: '#4ecdc4',
+  voluntas: '#ffe66d',
+  cognito: '#95e1d3',
+  tempus: '#dda0dd'
+}
+
+// Sacrifice/cost colors (right hand) - warmer, more somber tones
+const SACRIFICE_COLORS = {
+  health: '#e57373',
+  social: '#7986cb',
+  work: '#ffb74d',
+  career: '#ba68c8',
+  family: '#f06292'
+}
+
+const MOCK_USER_ID = '00000000-0000-0000-0000-000000000001'
+
+export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }) {
+  const currentUserId = userId || MOCK_USER_ID
+
+  const [hoveredWord, setHoveredWord] = useState(null)
+
+  // Task list state (left hand)
+  const [selectedDimension, setSelectedDimension] = useState(null)
+  const [tasks, setTasks] = useState([])
+  const [loadingTasks, setLoadingTasks] = useState(false)
+
+  // Sacrifice/cost state (right hand)
+  const [selectedSacrifice, setSelectedSacrifice] = useState(null)
+  const [sacrificeData, setSacrificeData] = useState(null)
+  const [loadingSacrifice, setLoadingSacrifice] = useState(false)
 
   const handleClick = () => {
     if (!expanded) {
@@ -35,194 +80,348 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded }) {
     }
   }
 
-  const handleHeaderClick = (e) => {
-    e.stopPropagation()
-    if (onExpand && !expanded) {
-      onExpand()
+  // ═══════════════════════════════════════════
+  // LEFT HAND - TASKS BY DIMENSION
+  // ═══════════════════════════════════════════
+
+  const fetchTasksByDimension = useCallback(async (dimension) => {
+    setLoadingTasks(true)
+    try {
+      const dimensionColumn = `${dimension}_level`
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', currentUserId)
+        .eq('status', 'active')
+        .order(dimensionColumn, { ascending: false })
+
+      if (error) throw error
+      const filteredTasks = (data || []).filter(task =>
+        task.primary_dimension === dimension || task[dimensionColumn] >= 3
+      )
+      setTasks(filteredTasks)
+    } catch (err) {
+      console.error('Error fetching tasks:', err)
+      // Sample data
+      setTasks([
+        { id: '1', title: 'Ejercicio matutino', description: 'Rutina de cardio', task_type: 'routine',
+          effort_level: 4, motus_level: 5, voluntas_level: 3, cognito_level: 1, tempus_level: 2,
+          health_cost: 0, social_cost: 1, work_cost: 0, career_cost: 0, family_cost: 2,
+          primary_dimension: 'motus', weighted_sacrifice_score: 0.6 },
+        { id: '2', title: 'Estudiar React', description: 'Curso de hooks', task_type: 'unique',
+          effort_level: 3, motus_level: 1, voluntas_level: 4, cognito_level: 5, tempus_level: 4,
+          health_cost: 2, social_cost: 3, work_cost: 0, career_cost: 0, family_cost: 3,
+          primary_dimension: 'cognito', weighted_sacrifice_score: 2.1 },
+        { id: '3', title: 'Proyecto comunitario', description: 'Organizar evento benéfico', task_type: 'unique',
+          effort_level: 4, motus_level: 4, voluntas_level: 5, cognito_level: 3, tempus_level: 5,
+          health_cost: 3, social_cost: 0, work_cost: 2, career_cost: 1, family_cost: 4,
+          primary_dimension: 'voluntas', weighted_sacrifice_score: 3.2 },
+        { id: '4', title: 'Freelance urgente', description: 'Entrega para cliente', task_type: 'unique',
+          effort_level: 5, motus_level: 2, voluntas_level: 3, cognito_level: 4, tempus_level: 5,
+          health_cost: 4, social_cost: 2, work_cost: 0, career_cost: 0, family_cost: 5,
+          primary_dimension: 'tempus', weighted_sacrifice_score: 4.1 },
+        { id: '5', title: 'Limpieza semanal', description: 'Hogar', task_type: 'routine',
+          effort_level: 5, motus_level: 4, voluntas_level: 2, cognito_level: 1, tempus_level: 3,
+          health_cost: 1, social_cost: 1, work_cost: 0, career_cost: 0, family_cost: 0,
+          primary_dimension: 'effort', weighted_sacrifice_score: 0.4 }
+      ].filter(task =>
+        task.primary_dimension === dimension || task[`${dimension}_level`] >= 3
+      ))
+    } finally {
+      setLoadingTasks(false)
     }
+  }, [currentUserId])
+
+  const handleGiveWordClick = useCallback((e, word) => {
+    e.stopPropagation()
+    setSelectedSacrifice(null)
+    setSelectedDimension(word)
+    fetchTasksByDimension(word.id)
+    onShowInfo?.(`Tareas de ${word.text}`)
+  }, [fetchTasksByDimension, onShowInfo])
+
+  // ═══════════════════════════════════════════
+  // RIGHT HAND - SACRIFICE / OPPORTUNITY COST
+  // ═══════════════════════════════════════════
+
+  const fetchSacrificeData = useCallback(async (sacrificeArea) => {
+    setLoadingSacrifice(true)
+    try {
+      // Get user's cost profile
+      const { data: profile, error: profileError } = await supabase
+        .from('opportunity_cost_profiles')
+        .select('*')
+        .eq('user_id', currentUserId)
+        .eq('is_active', true)
+        .single()
+
+      // Get tasks with high cost in this area
+      const costColumn = `${sacrificeArea.id}_cost`
+      const { data: costlyTasks, error: tasksError } = await supabase
+        .from('tasks')
+        .select('*, sacrifice_validations(*)')
+        .eq('user_id', currentUserId)
+        .eq('status', 'active')
+        .gte(costColumn, 3)
+        .order(costColumn, { ascending: false })
+
+      if (profileError && profileError.code !== 'PGRST116') throw profileError
+      if (tasksError) throw tasksError
+
+      setSacrificeData({
+        profile: profile || null,
+        tasks: costlyTasks || []
+      })
+    } catch (err) {
+      console.error('Error fetching sacrifice data:', err)
+      // Sample data
+      const sampleProfiles = {
+        health: { weight: 4, context: 'Recuperándome de una lesión' },
+        social: { weight: 3, context: 'Recién mudado, construyendo conexiones' },
+        work: { weight: 4, context: 'Proyecto crítico Q1' },
+        career: { weight: 5, context: 'En transición de carrera' },
+        family: { weight: 5, context: 'Dos hijos menores de 5 años' }
+      }
+      const sampleTasks = [
+        { id: '1', title: 'Proyecto comunitario', health_cost: 3, social_cost: 0, work_cost: 2, career_cost: 1, family_cost: 4,
+          weighted_sacrifice_score: 3.2, validations: 2 },
+        { id: '2', title: 'Freelance urgente', health_cost: 4, social_cost: 2, work_cost: 0, career_cost: 0, family_cost: 5,
+          weighted_sacrifice_score: 4.1, validations: 1 },
+        { id: '3', title: 'Estudiar React', health_cost: 2, social_cost: 3, work_cost: 0, career_cost: 0, family_cost: 3,
+          weighted_sacrifice_score: 2.1, validations: 0 }
+      ].filter(t => t[`${sacrificeArea.id}_cost`] >= 3)
+
+      setSacrificeData({
+        profile: {
+          [`${sacrificeArea.id}_weight`]: sampleProfiles[sacrificeArea.id].weight,
+          [`${sacrificeArea.id}_context`]: sampleProfiles[sacrificeArea.id].context
+        },
+        tasks: sampleTasks
+      })
+    } finally {
+      setLoadingSacrifice(false)
+    }
+  }, [currentUserId])
+
+  const handleSacrificeWordClick = useCallback((e, word) => {
+    e.stopPropagation()
+    setSelectedDimension(null)
+    setSelectedSacrifice(word)
+    fetchSacrificeData(word)
+    onShowInfo?.(`Costo: ${word.text}`)
+  }, [fetchSacrificeData, onShowInfo])
+
+  // Get weight level label
+  const getWeightLabel = (weight) => {
+    if (weight >= 5) return 'Muy Alto'
+    if (weight >= 4) return 'Alto'
+    if (weight >= 3) return 'Moderado'
+    if (weight >= 2) return 'Bajo'
+    return 'Muy Bajo'
   }
 
-  const handleWordClick = useCallback((e, word, hand) => {
-    e.stopPropagation()
-    setSelectedWord({ ...word, hand })
-    onShowInfo?.(`${hand === 'give' ? 'Dar' : 'Recibir'}: ${word.text}`)
-  }, [onShowInfo])
-
-  const handleWordHover = useCallback((word, hand) => {
-    setHoveredHand(hand)
-  }, [])
+  // ═══════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════
 
   return (
     <div className={`quadrant quadrant-ll ${expanded ? 'expanded' : ''}`} onClick={handleClick}>
-      <div className="quadrant-header" onClick={handleHeaderClick} style={{ cursor: expanded ? 'default' : 'pointer' }}>
-        <div>
-          <div className="quadrant-label">WE</div>
-          <div className="quadrant-subtitle">Interior · Colectivo</div>
-        </div>
-      </div>
+      <span className="quadrant-label" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>WE</span>
 
       <div className="quadrant-content">
-        <div className="hands-visual-container">
-          {/* Give Hand (Left) */}
-          <div
-            className={`hand-visual hand-give ${hoveredHand === 'give' ? 'hovered' : ''}`}
-            onMouseEnter={() => setHoveredHand('give')}
-            onMouseLeave={() => setHoveredHand(null)}
-          >
-            <div className="hand-title">Give</div>
-            <svg viewBox="0 0 200 280" className="hand-svg">
-              {/* Palm */}
-              <path
-                className="palm"
-                d="M40,280 L40,180 Q40,160 60,160 L140,160 Q160,160 160,180 L160,280 Z"
-              />
-              {/* Thumb */}
-              <path
-                className="finger finger-thumb"
-                d="M40,180 Q20,170 15,140 Q10,110 25,90 Q40,75 55,85 Q60,100 60,160"
-              />
-              {/* Index */}
-              <path
-                className="finger finger-index"
-                d="M60,160 L60,50 Q60,30 75,30 Q90,30 90,50 L90,160"
-              />
-              {/* Middle */}
-              <path
-                className="finger finger-middle"
-                d="M90,160 L90,25 Q90,5 105,5 Q120,5 120,25 L120,160"
-              />
-              {/* Ring */}
-              <path
-                className="finger finger-ring"
-                d="M120,160 L120,35 Q120,15 135,15 Q150,15 150,35 L150,160"
-              />
-              {/* Pinky */}
-              <path
-                className="finger finger-pinky"
-                d="M150,160 L150,70 Q150,50 165,50 Q180,50 180,70 L180,160 Q180,165 160,160"
-              />
-            </svg>
+        <div className="hands-container">
+          <div className="hands-wrapper">
+            <img src="/hands.png" alt="Hands - Give and Sacrifice" className="hands-image" />
 
-            {/* Words on fingers */}
-            <div className="finger-words">
-              {GIVE_WORDS.map((word) => (
-                <span
-                  key={word.id}
-                  className={`finger-word finger-word-${word.finger} ${selectedWord?.id === word.id ? 'selected' : ''}`}
-                  onClick={(e) => handleWordClick(e, word, 'give')}
-                  onMouseEnter={() => handleWordHover(word, 'give')}
-                >
-                  {word.text}
-                </span>
-              ))}
-            </div>
+            {/* Left hand - Dimensions of effort */}
+            {GIVE_WORDS.map((word) => (
+              <span
+                key={word.id}
+                className={`hand-word give-word ${hoveredWord?.id === word.id ? 'hovered' : ''} ${selectedDimension?.id === word.id ? 'selected' : ''}`}
+                style={{ left: `${word.position.x}%`, top: `${word.position.y}%`, transform: `translate(-50%, -50%) scale(${word.size})` }}
+                onClick={(e) => handleGiveWordClick(e, word)}
+                onMouseEnter={() => setHoveredWord(word)}
+                onMouseLeave={() => setHoveredWord(null)}
+              >
+                {word.text}
+              </span>
+            ))}
+
+            {/* Right hand - Sacrifice / Opportunity cost */}
+            {SACRIFICE_WORDS.map((word) => (
+              <span
+                key={word.id}
+                className={`hand-word receive-word ${hoveredWord?.id === word.id ? 'hovered' : ''} ${selectedSacrifice?.id === word.id ? 'selected' : ''}`}
+                style={{ left: `${word.position.x}%`, top: `${word.position.y}%`, transform: `translate(-50%, -50%) scale(${word.size})` }}
+                onClick={(e) => handleSacrificeWordClick(e, word)}
+                onMouseEnter={() => setHoveredWord(word)}
+                onMouseLeave={() => setHoveredWord(null)}
+              >
+                {word.text}
+              </span>
+            ))}
+
+            <span className="hand-label give-label">ACTIO</span>
+            <span className="hand-label receive-label">DEVOTIO</span>
           </div>
-
-          {/* Center divider with ampersand */}
-          <div className="hands-center">
-            <span className="ampersand">&</span>
-          </div>
-
-          {/* Receive Hand (Right) */}
-          <div
-            className={`hand-visual hand-receive ${hoveredHand === 'receive' ? 'hovered' : ''}`}
-            onMouseEnter={() => setHoveredHand('receive')}
-            onMouseLeave={() => setHoveredHand(null)}
-          >
-            <div className="hand-title">Receive</div>
-            <svg viewBox="0 0 200 280" className="hand-svg">
-              {/* Palm */}
-              <path
-                className="palm"
-                d="M40,280 L40,180 Q40,160 60,160 L140,160 Q160,160 160,180 L160,280 Z"
-              />
-              {/* Pinky */}
-              <path
-                className="finger finger-pinky"
-                d="M20,160 Q20,165 40,160 L40,70 Q40,50 55,50 Q70,50 70,70 L70,160"
-              />
-              {/* Ring */}
-              <path
-                className="finger finger-ring"
-                d="M70,160 L70,35 Q70,15 85,15 Q100,15 100,35 L100,160"
-              />
-              {/* Middle */}
-              <path
-                className="finger finger-middle"
-                d="M100,160 L100,25 Q100,5 115,5 Q130,5 130,25 L130,160"
-              />
-              {/* Index */}
-              <path
-                className="finger finger-index"
-                d="M130,160 L130,50 Q130,30 145,30 Q160,30 160,50 L160,160"
-              />
-              {/* Thumb */}
-              <path
-                className="finger finger-thumb"
-                d="M160,160 Q160,100 165,85 Q175,75 190,90 Q205,110 200,140 Q195,170 175,180 L160,180"
-              />
-            </svg>
-
-            {/* Words on fingers */}
-            <div className="finger-words">
-              {RECEIVE_WORDS.map((word) => (
-                <span
-                  key={word.id}
-                  className={`finger-word finger-word-${word.finger} ${selectedWord?.id === word.id ? 'selected' : ''}`}
-                  onClick={(e) => handleWordClick(e, word, 'receive')}
-                  onMouseEnter={() => handleWordHover(word, 'receive')}
-                >
-                  {word.text}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Flow indicator */}
-        <div className="contribution-flow">
-          <div className="flow-dot" />
-          <div className="flow-dot" />
-          <div className="flow-dot" />
         </div>
       </div>
 
-      <span className="click-hint">Click para explorar →</span>
+      {/* Task list bubble (left hand) */}
+      {selectedDimension && (
+        <div className="word-bubble" onClick={(e) => { e.stopPropagation(); setSelectedDimension(null); }}>
+          <div className="bubble-content task-list-bubble" onClick={(e) => e.stopPropagation()}>
+            <button className="bubble-close" onClick={() => setSelectedDimension(null)}>×</button>
 
-      {/* Word detail bubble */}
-      {selectedWord && (
-        <div className="word-bubble" onClick={(e) => { e.stopPropagation(); setSelectedWord(null); }}>
-          <div className="bubble-content" onClick={(e) => e.stopPropagation()}>
-            <button className="bubble-close" onClick={() => setSelectedWord(null)}>×</button>
-            <h3>{selectedWord.text}</h3>
-            <span className="bubble-hand-type">{selectedWord.hand === 'give' ? 'Dar' : 'Recibir'}</span>
-            <p className="bubble-description">
-              {getWordDescription(selectedWord.id)}
-            </p>
+            <h3 style={{ color: DIMENSION_COLORS[selectedDimension.id] }}>
+              {selectedDimension.text}
+            </h3>
+            <p className="dimension-description">{selectedDimension.description}</p>
+
+            <div className="task-list-header">
+              <span className="task-count">
+                {loadingTasks ? 'Cargando...' : `${tasks.length} tareas activas`}
+              </span>
+            </div>
+
+            {!loadingTasks && tasks.length === 0 ? (
+              <p className="no-tasks">No hay tareas activas con esta dimensión dominante.</p>
+            ) : (
+              <div className="task-list">
+                {tasks.map((task) => (
+                  <div key={task.id} className={`task-item ${task.task_type}`}>
+                    <div className="task-header">
+                      <span className="task-type-icon">{task.task_type === 'routine' ? '🔄' : '📌'}</span>
+                      <span className="task-title">{task.title}</span>
+                      {task.weighted_sacrifice_score > 0 && (
+                        <span className="sacrifice-badge" title="Coeficiente de sacrificio">
+                          ⚖️ {task.weighted_sacrifice_score.toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                    {task.description && <p className="task-description">{task.description}</p>}
+
+                    {/* Effort dimensions */}
+                    <div className="task-dimensions">
+                      {['effort', 'motus', 'voluntas', 'cognito', 'tempus'].map(dim => (
+                        <div key={dim} className={`dimension-bar ${dim === selectedDimension.id ? 'highlighted' : ''}`} title={`${dim}: ${task[`${dim}_level`]}/5`}>
+                          <div className="dimension-fill" style={{
+                            width: `${task[`${dim}_level`] * 20}%`,
+                            backgroundColor: dim === selectedDimension.id ? DIMENSION_COLORS[dim] : 'rgba(255,255,255,0.3)'
+                          }} />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Sacrifice costs */}
+                    {(task.health_cost > 0 || task.social_cost > 0 || task.work_cost > 0 || task.career_cost > 0 || task.family_cost > 0) && (
+                      <div className="task-costs">
+                        <span className="costs-label">Sacrificio:</span>
+                        {['health', 'social', 'work', 'career', 'family'].map(area => (
+                          task[`${area}_cost`] > 0 && (
+                            <span key={area} className="cost-tag" style={{ backgroundColor: SACRIFICE_COLORS[area] }}>
+                              {area.charAt(0).toUpperCase()}: {task[`${area}_cost`]}
+                            </span>
+                          )
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Sacrifice/Opportunity Cost bubble (right hand) */}
+      {selectedSacrifice && (
+        <div className="word-bubble" onClick={(e) => { e.stopPropagation(); setSelectedSacrifice(null); }}>
+          <div className="bubble-content sacrifice-bubble" onClick={(e) => e.stopPropagation()}>
+            <button className="bubble-close" onClick={() => setSelectedSacrifice(null)}>×</button>
+
+            <h3 style={{ color: SACRIFICE_COLORS[selectedSacrifice.id] }}>
+              {selectedSacrifice.text}
+            </h3>
+            <p className="sacrifice-description">{selectedSacrifice.description}</p>
+
+            {loadingSacrifice ? (
+              <p className="loading-text">Cargando...</p>
+            ) : sacrificeData && (
+              <>
+                {/* Current context and weight */}
+                <div className="cost-profile-section">
+                  <div className="profile-header">
+                    <span className="profile-label">Tu contexto actual</span>
+                    <span className="weight-badge" style={{ backgroundColor: SACRIFICE_COLORS[selectedSacrifice.id] }}>
+                      Peso: {getWeightLabel(sacrificeData.profile?.[selectedSacrifice.weightField] || 3)}
+                    </span>
+                  </div>
+
+                  <div className="weight-indicator">
+                    {[1, 2, 3, 4, 5].map(level => (
+                      <div
+                        key={level}
+                        className={`weight-block ${level <= (sacrificeData.profile?.[selectedSacrifice.weightField] || 3) ? 'active' : ''}`}
+                        style={{ backgroundColor: level <= (sacrificeData.profile?.[selectedSacrifice.weightField] || 3) ? SACRIFICE_COLORS[selectedSacrifice.id] : undefined }}
+                      />
+                    ))}
+                  </div>
+
+                  {sacrificeData.profile?.[selectedSacrifice.contextField] && (
+                    <p className="context-text">"{sacrificeData.profile[selectedSacrifice.contextField]}"</p>
+                  )}
+
+                  <p className="weight-explanation">
+                    Un peso alto significa que sacrificar esta área tiene mayor impacto en tu vida actual.
+                    Esto aumenta el coeficiente de las acciones que requieren este sacrificio.
+                  </p>
+                </div>
+
+                {/* Tasks with high cost in this area */}
+                <div className="costly-tasks-section">
+                  <span className="section-label">
+                    Tareas con alto costo en {selectedSacrifice.text.toLowerCase()}
+                  </span>
+
+                  {sacrificeData.tasks.length === 0 ? (
+                    <p className="no-tasks">No hay tareas activas con alto costo en esta área.</p>
+                  ) : (
+                    <div className="sacrifice-task-list">
+                      {sacrificeData.tasks.map((task) => (
+                        <div key={task.id} className="sacrifice-task-item">
+                          <div className="sacrifice-task-header">
+                            <span className="sacrifice-task-title">{task.title}</span>
+                            <span className="sacrifice-level" style={{ color: SACRIFICE_COLORS[selectedSacrifice.id] }}>
+                              -{task[selectedSacrifice.costField]}/5
+                            </span>
+                          </div>
+                          <div className="sacrifice-task-footer">
+                            <span className="coefficient">
+                              Coef: ×{task.weighted_sacrifice_score?.toFixed(2) || '1.00'}
+                            </span>
+                            {task.validations > 0 && (
+                              <span className="validations-count">
+                                ✓ {task.validations} validaciones
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <p className="validation-note">
+                  Las validaciones de terceros confirman tus sacrificios e incrementan el coeficiente de impacto de tus acciones.
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}
     </div>
   )
-}
-
-// Word descriptions
-function getWordDescription(wordId) {
-  const descriptions = {
-    // Give
-    effort: 'El esfuerzo físico y mental que contribuyes a la comunidad.',
-    motus: 'El movimiento y acción que generas para impulsar proyectos.',
-    voluntas: 'Tu voluntad y determinación para crear cambio positivo.',
-    cognito: 'El conocimiento y sabiduría que compartes con otros.',
-    tempus: 'El tiempo que dedicas al servicio de la comunidad.',
-    // Receive
-    health: 'Bienestar físico y mental que recibes de la comunidad.',
-    social: 'Conexiones y relaciones significativas con otros miembros.',
-    work: 'Oportunidades laborales y colaboración en proyectos.',
-    career: 'Desarrollo profesional y crecimiento en tu carrera.',
-    family: 'Sentido de pertenencia y apoyo familiar comunitario.'
-  }
-  return descriptions[wordId] || 'Descripción pendiente.'
 }
 
 export default LowerLeft

@@ -32,7 +32,8 @@ function App() {
   }, [showInfo])
 
   const handleCenterClick = () => {
-    showInfo('C.O.S. — Community Operating System v0.1')
+    showInfo('💰 Finanzas Personales — Módulo en desarrollo')
+    // TODO: Open personal finances module
   }
 
   const handleExpand = useCallback((quadrant) => {
@@ -44,14 +45,21 @@ function App() {
   }, [])
 
   // Expanded view
-  if (expandedQuadrant === 'ur') {
+  if (expandedQuadrant) {
+    const QuadrantComponent = {
+      ul: UpperLeft,
+      ur: UpperRight,
+      ll: LowerLeft,
+      lr: LowerRight
+    }[expandedQuadrant]
+
     return (
       <div className="app expanded">
         <button className="back-button" onClick={handleCollapse}>
           ← Back
         </button>
         <div className="os-container expanded">
-          <UpperRight
+          <QuadrantComponent
             onNavigate={handleNavigate}
             onShowInfo={showInfo}
             expanded={true}
@@ -73,10 +81,10 @@ function App() {
 
       {/* Quadrant grid */}
       <div className="os-container">
-        <UpperLeft onNavigate={handleNavigate} onShowInfo={showInfo} />
+        <UpperLeft onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ul')} />
         <UpperRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ur')} />
-        <LowerLeft onNavigate={handleNavigate} onShowInfo={showInfo} />
-        <LowerRight onNavigate={handleNavigate} onShowInfo={showInfo} />
+        <LowerLeft onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ll')} />
+        <LowerRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('lr')} />
       </div>
 
       {/* Info Panel */}

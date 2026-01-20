@@ -1,221 +1,107 @@
 /* ═══════════════════════════════════════════
-   LL - HANDS (Giving/Receiving) - Visual Template
+   LL - HANDS (Giving/Receiving) - Image Based
 ═══════════════════════════════════════════ */
 
 .quadrant-ll {
-  background: linear-gradient(45deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
+  background: #000000;
 }
 
 /* ═══════════════════════════════════════════
-   HANDS VISUAL CONTAINER
+   HANDS CONTAINER
 ═══════════════════════════════════════════ */
 
-.hands-visual-container {
+.hands-container {
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
 }
 
-.hand-visual {
+.hands-wrapper {
   position: relative;
-  width: 180px;
-  height: 240px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.3s ease;
+  max-width: 90%;
+  max-height: 90%;
+  aspect-ratio: 2 / 1;
 }
 
-.hand-visual.hovered {
-  transform: scale(1.02);
-}
-
-.hand-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--accent-gold);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-}
-
-/* ═══════════════════════════════════════════
-   SVG HAND STYLING
-═══════════════════════════════════════════ */
-
-.hand-svg {
-  width: 140px;
-  height: 200px;
-  overflow: visible;
-}
-
-.hand-svg .palm {
-  fill: rgba(201, 162, 39, 0.15);
-  stroke: var(--accent-gold-dim);
-  stroke-width: 2;
-  transition: all 0.3s ease;
-}
-
-.hand-svg .finger {
-  fill: rgba(201, 162, 39, 0.1);
-  stroke: var(--accent-gold-dim);
-  stroke-width: 1.5;
-  transition: all 0.3s ease;
-}
-
-.hand-visual.hovered .palm {
-  fill: rgba(201, 162, 39, 0.25);
-  stroke: var(--accent-gold);
-}
-
-.hand-visual.hovered .finger {
-  fill: rgba(201, 162, 39, 0.2);
-  stroke: var(--accent-gold);
-}
-
-/* ═══════════════════════════════════════════
-   FINGER WORDS POSITIONING
-═══════════════════════════════════════════ */
-
-.finger-words {
-  position: absolute;
-  top: 0;
-  left: 0;
+.hands-image {
   width: 100%;
   height: 100%;
-  pointer-events: none;
+  object-fit: contain;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
 }
 
-.finger-word {
+/* ═══════════════════════════════════════════
+   HAND WORDS
+═══════════════════════════════════════════ */
+
+.hand-word {
   position: absolute;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-light);
   cursor: pointer;
-  pointer-events: auto;
-  transition: all 0.3s ease;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
   white-space: nowrap;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  text-shadow:
+    0 0 10px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(0, 0, 0, 0.7);
+  z-index: 10;
 }
 
-.finger-word:hover {
+.hand-word:hover,
+.hand-word.hovered {
   color: var(--accent-gold);
-  text-shadow: 0 0 15px var(--accent-gold);
-  transform: scale(1.1);
+  text-shadow:
+    0 0 15px var(--accent-gold),
+    0 0 30px rgba(201, 162, 39, 0.5);
 }
 
-.finger-word.selected {
+.hand-word.selected {
   color: var(--accent-gold);
-  text-shadow: 0 0 20px var(--accent-gold);
+  text-shadow:
+    0 0 20px var(--accent-gold),
+    0 0 40px rgba(201, 162, 39, 0.7);
 }
 
-/* Give hand word positions (left hand) */
-.hand-give .finger-word-thumb {
-  top: 72%;
-  left: -15%;
-  transform: rotate(-30deg);
+/* Give words (left hand) - golden tint */
+.give-word {
+  color: rgba(255, 220, 150, 0.95);
+  font-size: 1.1rem;
 }
 
-.hand-give .finger-word-index {
-  top: 25%;
-  left: 5%;
-}
-
-.hand-give .finger-word-middle {
-  top: 12%;
-  left: 28%;
-}
-
-.hand-give .finger-word-ring {
-  top: 18%;
-  left: 55%;
-}
-
-.hand-give .finger-word-pinky {
-  top: 32%;
-  right: -10%;
-}
-
-/* Receive hand word positions (right hand - mirrored) */
-.hand-receive .finger-word-pinky {
-  top: 32%;
-  left: -10%;
-}
-
-.hand-receive .finger-word-ring {
-  top: 18%;
-  left: 10%;
-}
-
-.hand-receive .finger-word-middle {
-  top: 12%;
-  left: 35%;
-}
-
-.hand-receive .finger-word-index {
-  top: 25%;
-  right: 5%;
-}
-
-.hand-receive .finger-word-thumb {
-  top: 72%;
-  right: -15%;
-  transform: rotate(30deg);
+/* Receive words (right hand) - silver tint */
+.receive-word {
+  color: rgba(220, 230, 255, 0.95);
 }
 
 /* ═══════════════════════════════════════════
-   CENTER DIVIDER
+   HAND LABELS
 ═══════════════════════════════════════════ */
 
-.hands-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.5rem;
-}
-
-.ampersand {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 3rem;
-  font-weight: 300;
-  color: var(--accent-gold);
-  opacity: 0.6;
-  text-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
-}
-
-/* ═══════════════════════════════════════════
-   FLOW INDICATOR
-═══════════════════════════════════════════ */
-
-.contribution-flow {
+.hand-label {
   position: absolute;
-  bottom: 1rem;
-  left: 50%;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: white;
+  top: 95%;
   transform: translateX(-50%);
-  display: flex;
-  gap: 0.5rem;
+  z-index: 10;
 }
 
-.flow-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent-gold);
-  animation: flowPulse 2s ease-in-out infinite;
+.give-label {
+  left: 25%;
 }
 
-.flow-dot:nth-child(2) { animation-delay: 0.3s; }
-.flow-dot:nth-child(3) { animation-delay: 0.6s; }
-
-@keyframes flowPulse {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+.receive-label {
+  left: 75%;
 }
 
 /* ═══════════════════════════════════════════
@@ -294,29 +180,467 @@
 }
 
 /* ═══════════════════════════════════════════
+   TASK LIST BUBBLE
+═══════════════════════════════════════════ */
+
+.task-list-bubble {
+  max-width: 450px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.dimension-description {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-muted, #888);
+  margin: 0.25rem 0 1rem 0;
+}
+
+.task-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.75rem;
+}
+
+.task-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.no-tasks {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--text-muted, #888);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.task-item.routine {
+  border-left: 3px solid #4ecdc4;
+}
+
+.task-item.unique {
+  border-left: 3px solid #ffe66d;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-type-icon {
+  font-size: 0.9rem;
+}
+
+.task-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-light, #e8e4d9);
+}
+
+.task-description {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+/* Dimension levels visualization */
+.task-dimensions {
+  display: flex;
+  gap: 3px;
+  margin-top: 0.5rem;
+}
+
+.dimension-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dimension-bar.highlighted {
+  height: 6px;
+}
+
+.dimension-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════
+   CONTRIBUTION LIST BUBBLE (Right Hand)
+═══════════════════════════════════════════ */
+
+.contribution-list-bubble {
+  max-width: 450px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.category-description {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-muted, #888);
+  margin: 0.25rem 0 1rem 0;
+}
+
+.contribution-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.75rem;
+}
+
+.contribution-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.no-contributions {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--text-muted, #888);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.contribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contribution-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.contribution-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.contribution-item.recurring {
+  border-left: 3px solid #4ecdc4;
+}
+
+.contribution-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contribution-type-icon {
+  font-size: 1rem;
+}
+
+.contribution-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-light, #e8e4d9);
+  flex: 1;
+}
+
+.recurring-badge {
+  font-size: 0.9rem;
+  color: #4ecdc4;
+  margin-left: auto;
+}
+
+.contribution-description {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.contribution-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.contribution-from {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+}
+
+.impact-dots {
+  display: flex;
+  gap: 3px;
+}
+
+.impact-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background-color 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════
+   SACRIFICE / OPPORTUNITY COST BUBBLE
+═══════════════════════════════════════════ */
+
+.sacrifice-bubble {
+  max-width: 450px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.sacrifice-description {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-muted, #888);
+  margin: 0.25rem 0 1rem 0;
+}
+
+.loading-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Cost Profile Section */
+.cost-profile-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.profile-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.weight-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.weight-indicator {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.weight-block {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  transition: background-color 0.2s;
+}
+
+.weight-block.active {
+  /* Color set via inline style */
+}
+
+.context-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text-light, #e8e4d9);
+  margin: 0.5rem 0;
+  padding-left: 0.5rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.weight-explanation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+  margin: 0.75rem 0 0 0;
+  line-height: 1.4;
+}
+
+/* Costly Tasks Section */
+.costly-tasks-section {
+  margin-top: 1rem;
+}
+
+.section-label {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sacrifice-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sacrifice-task-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+}
+
+.sacrifice-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sacrifice-task-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-light, #e8e4d9);
+}
+
+.sacrifice-level {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.sacrifice-task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.4rem;
+}
+
+.coefficient {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent-gold, #c9a227);
+}
+
+.validations-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: #4CAF50;
+}
+
+.validation-note {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+  margin: 1rem 0 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 1.4;
+}
+
+/* Task costs display in task list */
+.task-costs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.costs-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #666);
+  text-transform: uppercase;
+}
+
+.cost-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: white;
+  padding: 0.15rem 0.35rem;
+  border-radius: 3px;
+}
+
+.sacrifice-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent-gold, #c9a227);
+  margin-left: auto;
+}
+
+/* ═══════════════════════════════════════════
    EXPANDED VIEW ADJUSTMENTS
 ═══════════════════════════════════════════ */
 
-.quadrant-ll.expanded .hand-visual {
-  width: 280px;
-  height: 380px;
+.quadrant-ll.expanded .hands-image {
+  max-width: 95%;
+  max-height: 95%;
 }
 
-.quadrant-ll.expanded .hand-svg {
-  width: 220px;
-  height: 320px;
+.quadrant-ll.expanded .hand-word {
+  font-size: 1.3rem;
 }
 
-.quadrant-ll.expanded .hand-title {
-  font-size: 2rem;
-}
-
-.quadrant-ll.expanded .finger-word {
-  font-size: 1.2rem;
-}
-
-.quadrant-ll.expanded .ampersand {
-  font-size: 5rem;
+.quadrant-ll.expanded .hand-label {
+  font-size: 1rem;
 }
 
 /* ═══════════════════════════════════════════
@@ -325,197 +649,43 @@
 
 /* Tablet */
 @media (max-width: 768px) {
-  .hands-visual-container {
-    gap: 0.5rem;
+  .hand-word {
+    font-size: 0.75rem;
   }
 
-  .hand-visual {
-    width: 140px;
-    height: 190px;
+  .hand-label {
+    font-size: 0.6rem;
+    bottom: 12%;
   }
 
-  .hand-title {
-    font-size: 1.1rem;
-    margin-bottom: 0.25rem;
-    letter-spacing: 0.1em;
+  .give-label {
+    left: 15%;
   }
 
-  .hand-svg {
-    width: 110px;
-    height: 160px;
-  }
-
-  .finger-word {
-    font-size: 0.7rem;
-  }
-
-  .ampersand {
-    font-size: 2rem;
-  }
-
-  /* Adjusted word positions for tablet */
-  .hand-give .finger-word-thumb {
-    top: 70%;
-    left: -10%;
-  }
-
-  .hand-give .finger-word-index {
-    top: 28%;
-    left: 0%;
-  }
-
-  .hand-give .finger-word-middle {
-    top: 15%;
-    left: 22%;
-  }
-
-  .hand-give .finger-word-ring {
-    top: 20%;
-    left: 50%;
-  }
-
-  .hand-give .finger-word-pinky {
-    top: 35%;
-    right: -5%;
-  }
-
-  .hand-receive .finger-word-pinky {
-    top: 35%;
-    left: -5%;
-  }
-
-  .hand-receive .finger-word-ring {
-    top: 20%;
-    left: 5%;
-  }
-
-  .hand-receive .finger-word-middle {
-    top: 15%;
-    left: 30%;
-  }
-
-  .hand-receive .finger-word-index {
-    top: 28%;
-    right: 0%;
-  }
-
-  .hand-receive .finger-word-thumb {
-    top: 70%;
-    right: -10%;
-  }
-
-  .contribution-flow {
-    bottom: 0.5rem;
-  }
-
-  .flow-dot {
-    width: 5px;
-    height: 5px;
+  .receive-label {
+    right: 15%;
   }
 }
 
 /* Mobile */
 @media (max-width: 480px) {
-  .hands-visual-container {
-    gap: 0.25rem;
-    padding: 0 0.25rem;
-  }
-
-  .hand-visual {
-    width: 100px;
-    height: 140px;
-  }
-
-  .hand-title {
-    font-size: 0.8rem;
-    margin-bottom: 0.15rem;
-    letter-spacing: 0.05em;
-  }
-
-  .hand-svg {
-    width: 80px;
-    height: 115px;
-  }
-
-  .hand-svg .palm {
-    stroke-width: 1.5;
-  }
-
-  .hand-svg .finger {
-    stroke-width: 1;
-  }
-
-  .finger-word {
-    font-size: 0.55rem;
+  .hand-word {
+    font-size: 0.6rem;
     font-weight: 700;
   }
 
-  .ampersand {
-    font-size: 1.4rem;
-    padding: 0 0.15rem;
+  .hand-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    bottom: 10%;
   }
 
-  /* Tighter word positions for mobile */
-  .hand-give .finger-word-thumb {
-    top: 68%;
-    left: -5%;
-    transform: rotate(-20deg);
+  .give-label {
+    left: 10%;
   }
 
-  .hand-give .finger-word-index {
-    top: 30%;
-    left: -2%;
-  }
-
-  .hand-give .finger-word-middle {
-    top: 18%;
-    left: 18%;
-  }
-
-  .hand-give .finger-word-ring {
-    top: 22%;
-    left: 45%;
-  }
-
-  .hand-give .finger-word-pinky {
-    top: 36%;
-    right: -2%;
-  }
-
-  .hand-receive .finger-word-pinky {
-    top: 36%;
-    left: -2%;
-  }
-
-  .hand-receive .finger-word-ring {
-    top: 22%;
-    left: 2%;
-  }
-
-  .hand-receive .finger-word-middle {
-    top: 18%;
-    left: 28%;
-  }
-
-  .hand-receive .finger-word-index {
-    top: 30%;
-    right: -2%;
-  }
-
-  .hand-receive .finger-word-thumb {
-    top: 68%;
-    right: -5%;
-    transform: rotate(20deg);
-  }
-
-  .contribution-flow {
-    bottom: 0.25rem;
-    gap: 0.3rem;
-  }
-
-  .flow-dot {
-    width: 4px;
-    height: 4px;
+  .receive-label {
+    right: 10%;
   }
 
   /* Mobile bubble */
@@ -540,32 +710,11 @@
 
 /* Very small screens */
 @media (max-width: 360px) {
-  .hand-visual {
-    width: 85px;
-    height: 120px;
-  }
-
-  .hand-title {
-    font-size: 0.7rem;
-  }
-
-  .hand-svg {
-    width: 68px;
-    height: 100px;
-  }
-
-  .finger-word {
+  .hand-word {
     font-size: 0.5rem;
   }
 
-  .ampersand {
-    font-size: 1.1rem;
-  }
-}
-
-/* Landscape mobile - stack vertically */
-@media (max-height: 500px) and (orientation: landscape) {
-  .hands-visual-container {
-    transform: scale(0.7);
+  .hand-label {
+    font-size: 0.45rem;
   }
 }

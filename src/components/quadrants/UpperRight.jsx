@@ -5,8 +5,12 @@
  * Mouse controls:
  * - Left click: Open child words
  * - Right click: Add new word at current level
+ * - Right click on definition bubble: Add child word
+ * - Both buttons on word: Edit/delete word
  * - Middle button drag: Pan the canvas
- * - Mouse wheel: Zoom in/out
+ * - Mouse wheel: Zoom in/out (pointer-centered)
+ *   - Zoom out past threshold: Navigate to parent
+ *   - Zoom in on word with children: Navigate into word
  * - Back button: Go to parent
  * - Forward button: Go to previous child
  * - Shift + Left click: Activate word for connection
@@ -125,15 +129,25 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [definitionBubble, setDefinitionBubble] = useState(null)
   const [addWordBubble, setAddWordBubble] = useState(null)
+  const [addWordParent, setAddWordParent] = useState(null) // For creating child of specific word
   const [editWordBubble, setEditWordBubble] = useState(null)
   const [newWordName, setNewWordName] = useState('')
   const [newWordMinistry, setNewWordMinistry] = useState(MINISTRIES[MINISTRIES.length - 1])
   const [activatedWord, setActivatedWord] = useState(null)
   const [saving, setSaving] = useState(false)
   const [mouseButtons, setMouseButtons] = useState(0)
+  const [hoveredWord, setHoveredWord] = useState(null)
 
-  const containerRef = useRef(null)
+  const wrapperRef = useRef(null)  // For mouse position (untransformed)
+  const containerRef = useRef(null)  // For the transformed content
   const inputRef = useRef(null)
+  const zoomRef = useRef(zoom)
+  const panRef = useRef(pan)
+  const isNavigatingRef = useRef(false)
+
+  // Keep refs in sync with state
+  useEffect(() => { zoomRef.current = zoom }, [zoom])
+  useEffect(() => { panRef.current = pan }, [pan])
 
   // Fetch words from Supabase
   const fetchWords = useCallback(async () => {
@@ -255,6 +269,53 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     }
   }, [forwardHistory])
 
+  // Fetch issues for a word
+  const fetchIssuesForWord = useCallback(async (word) => {
+    try {
+      const { data, error } = await supabase
+        .from('issue_words')
+        .select('issue_id, relevance_level, issues(*)')
+        .ilike('word', word)
+
+      if (error) throw error
+
+      // Filter out resolved/archived issues and sort by urgency
+      const activeIssues = (data || [])
+        .filter(iw => iw.issues && !['resolved', 'archived'].includes(iw.issues.status))
+        .map(iw => ({ ...iw.issues, relevance: iw.relevance_level }))
+        .sort((a, b) => b.urgency_level - a.urgency_level)
+
+      return activeIssues
+    } catch (err) {
+      console.error('Error fetching issues:', err)
+      // Return sample data for demo
+      const sampleIssues = {
+        'democracy': [
+          { id: '1', title: 'Representación vs Participación Directa', description: 'Debate sobre el balance entre democracia representativa y participativa', status: 'deliberating', urgency_level: 4 },
+          { id: '2', title: 'Voto Electrónico', description: 'Seguridad y transparencia en sistemas de votación digital', status: 'open', urgency_level: 3 }
+        ],
+        'economy': [
+          { id: '3', title: 'Distribución de Recursos', description: 'Criterios para asignación equitativa de recursos comunitarios', status: 'open', urgency_level: 5 }
+        ],
+        'education': [
+          { id: '4', title: 'Acceso Universal', description: 'Garantizar educación de calidad para todos los miembros', status: 'deliberating', urgency_level: 4 }
+        ],
+        'farm-loans': [
+          { id: '5', title: 'Criterios para Préstamos Agrícolas', description: '¿Bajo qué condiciones la comunidad debe otorgar préstamos a proyectos agrícolas? Tasas, plazos, garantías y priorización.', status: 'deliberating', urgency_level: 4 },
+          { id: '6', title: 'Gestión del Riesgo en Préstamos', description: '¿Cómo manejar el riesgo de impago considerando factores climáticos y de mercado?', status: 'open', urgency_level: 3 },
+          { id: '7', title: 'Requisitos Ambientales', description: '¿Deben los préstamos condicionarse a prácticas sustentables? Orgánico vs. convencional.', status: 'open', urgency_level: 3 }
+        ],
+        'agriculture': [
+          { id: '5', title: 'Criterios para Préstamos Agrícolas', description: '¿Bajo qué condiciones la comunidad debe otorgar préstamos a proyectos agrícolas?', status: 'deliberating', urgency_level: 4 }
+        ],
+        'sustainability': [
+          { id: '7', title: 'Requisitos Ambientales para Financiamiento', description: '¿Deben los préstamos agrícolas condicionarse a prácticas sustentables?', status: 'open', urgency_level: 3 }
+        ]
+      }
+      return sampleIssues[word.toLowerCase()] || []
+    }
+  }, [])
+
   // Handle word left click
   const handleWordClick = useCallback(async (e, topic) => {
     e.stopPropagation()
@@ -271,23 +332,30 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     if (wordsMap[topic.id]?.children?.length > 0) {
       navigateToChild(topic.id)
     } else {
-      // Leaf node - fetch definition
+      // Leaf node - fetch definition and issues
       const wordData = wordsMap[topic.id]
-      setDefinitionBubble({ word: topic.text, loading: true, ministry: wordData?.ministry_name })
+      setDefinitionBubble({ word: topic.text, loading: true, ministry: wordData?.ministry_name, wordId: topic.id })
+
+      // Fetch issues in parallel with definition
+      const issuesPromise = fetchIssuesForWord(topic.text)
 
       try {
         const searchTerm = topic.text.replace(/-/g, ' ')
         const wikiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTerm)}`
         const response = await fetch(wikiUrl)
 
+        const issues = await issuesPromise
+
         if (response.ok) {
           const data = await response.json()
           setDefinitionBubble({
             word: topic.text,
+            wordId: topic.id,
             definition: data.extract || 'No definition found',
             ministry: wordData?.ministry_name,
             image: data.thumbnail?.source || null,
-            wikiUrl: data.content_urls?.desktop?.page || null
+            wikiUrl: data.content_urls?.desktop?.page || null,
+            issues
           })
         } else {
           const dictResponse = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchTerm}`)
@@ -296,24 +364,29 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
             const definition = dictData[0]?.meanings[0]?.definitions[0]?.definition || 'No definition found'
             setDefinitionBubble({
               word: topic.text,
+              wordId: topic.id,
               definition,
               ministry: wordData?.ministry_name,
-              searchUrl: `https://www.google.com/search?q=${encodeURIComponent(topic.text)}&tbm=isch`
+              searchUrl: `https://www.google.com/search?q=${encodeURIComponent(topic.text)}&tbm=isch`,
+              issues
             })
           } else {
             throw new Error('Not found')
           }
         }
       } catch (err) {
+        const issues = await issuesPromise
         setDefinitionBubble({
           word: topic.text,
+          wordId: topic.id,
           definition: wordData?.description || `Tema relacionado con ${wordData?.ministry_name || 'este proyecto'}`,
           ministry: wordData?.ministry_name,
-          searchUrl: `https://www.google.com/search?q=${encodeURIComponent(topic.text)}`
+          searchUrl: `https://www.google.com/search?q=${encodeURIComponent(topic.text)}`,
+          issues
         })
       }
     }
-  }, [wordsMap, navigateToChild, activatedWord, onShowInfo])
+  }, [wordsMap, navigateToChild, activatedWord, onShowInfo, fetchIssuesForWord])
 
   // Handle word mouse down - track for both-button edit
   const handleWordMouseDown = useCallback((e, topic) => {
@@ -408,12 +481,20 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
     setSaving(true)
     try {
-      const currentParentId = currentNodeId === 'root' ? null : parseInt(currentNodeId)
-      const tier = currentNodeId === 'root' ? 1 : (wordsMap[currentNodeId]?.tier || 1) + 1
+      // Use addWordParent if set (creating child of specific word), otherwise use current node
+      const parentId = addWordParent
+        ? parseInt(addWordParent.id)
+        : (currentNodeId === 'root' ? null : parseInt(currentNodeId))
+
+      const parentTier = addWordParent
+        ? (wordsMap[addWordParent.id]?.tier || 1)
+        : (currentNodeId === 'root' ? 0 : (wordsMap[currentNodeId]?.tier || 1))
+
+      const tier = parentTier + 1
 
       const insertData = {
         word: newWordName.trim(),
-        parent_id: currentParentId,
+        parent_id: parentId,
         tier: tier,
         ministry_name: newWordMinistry.name,
         ministry_color: newWordMinistry.color
@@ -427,6 +508,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       onShowInfo?.(`Palabra "${newWordName}" agregada`)
       setAddWordBubble(null)
+      setAddWordParent(null)
       setNewWordName('')
       await fetchWords()
     } catch (err) {
@@ -434,7 +516,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       onShowInfo?.(`Error: ${err.message}`)
     }
     setSaving(false)
-  }, [newWordName, newWordMinistry, currentNodeId, wordsMap, fetchWords, onShowInfo])
+  }, [newWordName, newWordMinistry, currentNodeId, addWordParent, wordsMap, fetchWords, onShowInfo])
 
   // Save edited word
   const handleSaveEditWord = useCallback(async () => {
@@ -521,8 +603,8 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
   // Mouse button events (back/forward)
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
 
     const handleMouseDown = (e) => {
       // Back button (button 3)
@@ -565,35 +647,84 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       }
     }
 
-    container.addEventListener('mousedown', handleMouseDown)
-    container.addEventListener('mousemove', handleMouseMove)
-    container.addEventListener('mouseup', handleMouseUp)
-    container.addEventListener('mouseleave', () => setIsPanning(false))
-    container.addEventListener('contextmenu', handleContextMenuCapture, true)
+    wrapper.addEventListener('mousedown', handleMouseDown)
+    wrapper.addEventListener('mousemove', handleMouseMove)
+    wrapper.addEventListener('mouseup', handleMouseUp)
+    wrapper.addEventListener('mouseleave', () => setIsPanning(false))
+    wrapper.addEventListener('contextmenu', handleContextMenuCapture, true)
 
     return () => {
-      container.removeEventListener('mousedown', handleMouseDown)
-      container.removeEventListener('mousemove', handleMouseMove)
-      container.removeEventListener('mouseup', handleMouseUp)
-      container.removeEventListener('mouseleave', () => setIsPanning(false))
-      container.removeEventListener('contextmenu', handleContextMenuCapture, true)
+      wrapper.removeEventListener('mousedown', handleMouseDown)
+      wrapper.removeEventListener('mousemove', handleMouseMove)
+      wrapper.removeEventListener('mouseup', handleMouseUp)
+      wrapper.removeEventListener('mouseleave', () => setIsPanning(false))
+      wrapper.removeEventListener('contextmenu', handleContextMenuCapture, true)
     }
   }, [navigateBack, navigateForward, isPanning, pan, panStart])
 
-  // Wheel zoom
+  // Wheel zoom - pointer-centered, zoom out to go back, zoom in on word to navigate
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
 
     const handleWheel = (e) => {
       e.preventDefault()
+
+      // Prevent multiple rapid navigations
+      if (isNavigatingRef.current) return
+
       const delta = e.deltaY > 0 ? -0.1 : 0.1
-      setZoom(prev => Math.min(Math.max(prev + delta, 0.5), 3))
+      const zoomIn = delta > 0
+
+      // Get mouse position relative to wrapper (untransformed container)
+      const rect = wrapper.getBoundingClientRect()
+      const mouseX = e.clientX - rect.left
+      const mouseY = e.clientY - rect.top
+
+      // Get current values from refs
+      const currentZoom = zoomRef.current
+      const currentPan = panRef.current
+
+      // Calculate new zoom
+      let newZoom = Math.min(Math.max(currentZoom + delta, 0.5), 3)
+
+      // Zoom out past threshold - navigate back to parent
+      if (!zoomIn && currentZoom <= 0.6 && path.length > 1) {
+        isNavigatingRef.current = true
+        navigateBack()
+        setTimeout(() => {
+          isNavigatingRef.current = false
+        }, 300)
+        return
+      }
+
+      // Zoom in past threshold while hovering over a word with children - navigate into it
+      if (zoomIn && currentZoom >= 1.8 && hoveredWord) {
+        const hasChildren = wordsMap[hoveredWord.id]?.children?.length > 0
+        if (hasChildren) {
+          isNavigatingRef.current = true
+          navigateToChild(hoveredWord.id)
+          setTimeout(() => {
+            isNavigatingRef.current = false
+          }, 300)
+          return
+        }
+      }
+
+      // Pointer-centered zoom: adjust pan so point under cursor stays in place
+      // Formula: newPan = mousePos - (mousePos - oldPan) * (newZoom / oldZoom)
+      const zoomRatio = newZoom / currentZoom
+      const newPanX = mouseX - (mouseX - currentPan.x) * zoomRatio
+      const newPanY = mouseY - (mouseY - currentPan.y) * zoomRatio
+
+      // Update both state values
+      setZoom(newZoom)
+      setPan({ x: newPanX, y: newPanY })
     }
 
-    container.addEventListener('wheel', handleWheel, { passive: false })
-    return () => container.removeEventListener('wheel', handleWheel)
-  }, [])
+    wrapper.addEventListener('wheel', handleWheel, { passive: false })
+    return () => wrapper.removeEventListener('wheel', handleWheel)
+  }, [path.length, navigateBack, hoveredWord, wordsMap, navigateToChild])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -601,6 +732,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       if (e.key === 'Escape') {
         setDefinitionBubble(null)
         setAddWordBubble(null)
+        setAddWordParent(null)
         setEditWordBubble(null)
         setActivatedWord(null)
       }
@@ -629,12 +761,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   if (loading) {
     return (
       <div className="quadrant quadrant-ur">
-        <div className="quadrant-header">
-          <div>
-            <div className="quadrant-label">IT</div>
-            <div className="quadrant-subtitle">Exterior · Individual</div>
-          </div>
-        </div>
+        <span className="quadrant-label" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>IT</span>
         <div className="quadrant-content">
           <div className="loading">Cargando...</div>
         </div>
@@ -645,12 +772,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   if (error) {
     return (
       <div className="quadrant quadrant-ur">
-        <div className="quadrant-header">
-          <div>
-            <div className="quadrant-label">IT</div>
-            <div className="quadrant-subtitle">Exterior · Individual</div>
-          </div>
-        </div>
+        <span className="quadrant-label" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>IT</span>
         <div className="quadrant-content">
           <div className="error">Error: {error}</div>
         </div>
@@ -660,27 +782,24 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
   return (
     <div className={`quadrant quadrant-ur ${expanded ? 'expanded' : ''}`} onClick={handleQuadrantClick}>
-      <div className="quadrant-header" onClick={handleHeaderClick} style={{ cursor: expanded ? 'default' : 'pointer' }}>
-        <div>
-          <div className="quadrant-label">IT</div>
-          <div className="quadrant-subtitle">Exterior · Individual</div>
-        </div>
-      </div>
+      <span className="quadrant-label" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>IT</span>
 
       <div className="quadrant-content">
-        <div className="breadcrumb">
-          {breadcrumbLabels.map((label, i) => (
-            <span key={i}>
-              {i > 0 && <span className="breadcrumb-separator"> / </span>}
-              <span
-                className={`breadcrumb-item ${i === breadcrumbLabels.length - 1 ? 'active' : ''}`}
-                onClick={(e) => handleBreadcrumbClick(e, i)}
-              >
-                {label}
+        {path.length > 1 && (
+          <div className="breadcrumb">
+            {breadcrumbLabels.slice(1).map((label, i) => (
+              <span key={i + 1}>
+                {i > 0 && <span className="breadcrumb-separator"> / </span>}
+                <span
+                  className={`breadcrumb-item ${i + 1 === breadcrumbLabels.length - 1 ? 'active' : ''}`}
+                  onClick={(e) => handleBreadcrumbClick(e, i + 1)}
+                >
+                  {label}
+                </span>
               </span>
-            </span>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {activatedWord && (
           <div className="activated-word-indicator">
@@ -690,88 +809,135 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
         )}
 
         <div
-          ref={containerRef}
-          className={`wordcloud-container ${isTransitioning ? 'transitioning' : ''} ${isPanning ? 'panning' : ''}`}
-          style={{
-            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            cursor: isPanning ? 'grabbing' : 'default'
-          }}
+          ref={wrapperRef}
+          className="wordcloud-wrapper"
           onContextMenu={handleContainerContextMenu}
         >
-          {currentTopics.map((topic, i) => {
-            const hasChildren = wordsMap[topic.id]?.children?.length > 0
-            const pos = wordPositions[topic.id] || { x: 50, y: 50 }
-            const isActivated = activatedWord?.id === topic.id
-            return (
-              <span
-                key={topic.id}
-                className={`word-item word-${topic.size} ${hasChildren ? 'has-children' : ''} ${isActivated ? 'activated' : ''}`}
-                onClick={(e) => handleWordClick(e, topic)}
-                onMouseDown={(e) => handleWordMouseDown(e, topic)}
-                onContextMenu={(e) => handleWordContextMenu(e, topic)}
-                style={{
-                  animationDelay: `${i * 30}ms`,
-                  color: topic.color || undefined,
-                  position: 'absolute',
-                  left: `${pos.x}%`,
-                  top: `${pos.y}%`,
-                  transform: 'translate(-50%, -50%)'
-                }}
-              >
-                {topic.text}
-                {hasChildren && <span className="word-indicator">›</span>}
-              </span>
-            )
-          })}
-        </div>
-
-        {path.length > 1 && (
-          <div className="back-hint">
-            ← click o botón atrás para volver
+          <div
+            ref={containerRef}
+            className={`wordcloud-container ${isTransitioning ? 'transitioning' : ''} ${isPanning ? 'panning' : ''}`}
+            style={{
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              transformOrigin: '0 0',
+              cursor: isPanning ? 'grabbing' : 'default'
+            }}
+          >
+            {currentTopics.map((topic, i) => {
+              const hasChildren = wordsMap[topic.id]?.children?.length > 0
+              const pos = wordPositions[topic.id] || { x: 50, y: 50 }
+              const isActivated = activatedWord?.id === topic.id
+              const isHovered = hoveredWord?.id === topic.id
+              return (
+                <span
+                  key={topic.id}
+                  className={`word-item word-${topic.size} ${hasChildren ? 'has-children' : ''} ${isActivated ? 'activated' : ''} ${isHovered ? 'hovered' : ''}`}
+                  onClick={(e) => handleWordClick(e, topic)}
+                  onMouseDown={(e) => handleWordMouseDown(e, topic)}
+                  onContextMenu={(e) => handleWordContextMenu(e, topic)}
+                  onMouseEnter={() => setHoveredWord({ id: topic.id, text: topic.text })}
+                  onMouseLeave={() => setHoveredWord(null)}
+                  style={{
+                    animationDelay: `${i * 30}ms`,
+                    color: topic.color || undefined,
+                    position: 'absolute',
+                    left: `${pos.x}%`,
+                    top: `${pos.y}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  {topic.text}
+                  {hasChildren && <span className="word-indicator">›</span>}
+                </span>
+              )
+            })}
           </div>
-        )}
-
-        <div className="controls-hint">
-          <span>🖱️ Rueda: zoom</span>
-          <span>⚙️ Medio: arrastrar</span>
-          <span>➕ Derecho: agregar</span>
         </div>
-      </div>
 
-      <span className="click-hint">
-        {path.length > 1 ? 'Click para volver' : 'Click palabra para explorar →'}
-      </span>
+      </div>
 
       {/* Definition bubble */}
       {definitionBubble && (
-        <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setDefinitionBubble(null); }}>
-          <div className="bubble-content" onClick={(e) => e.stopPropagation()}>
+        <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setDefinitionBubble(null); }} onContextMenu={(e) => e.preventDefault()}>
+          <div className={`bubble-content ${definitionBubble.issues?.length > 0 ? 'has-issues' : ''}`} onClick={(e) => e.stopPropagation()} onContextMenu={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            // Right-click on definition bubble opens add word as child
+            setAddWordParent({ id: definitionBubble.wordId, text: definitionBubble.word })
+            setAddWordBubble({ x: 50, y: 50 })
+            setNewWordName('')
+            setNewWordMinistry(MINISTRIES[MINISTRIES.length - 1])
+            setDefinitionBubble(null)
+            setTimeout(() => inputRef.current?.focus(), 100)
+          }}>
             <button className="bubble-close" onClick={() => setDefinitionBubble(null)}>×</button>
-            {definitionBubble.image && (
-              <div className="bubble-image">
-                <img src={definitionBubble.image} alt={definitionBubble.word} />
-              </div>
-            )}
-            <h3>{definitionBubble.word}</h3>
-            {definitionBubble.ministry && <span className="bubble-ministry">{definitionBubble.ministry}</span>}
-            {definitionBubble.loading ? (
-              <p className="bubble-loading">Buscando definición...</p>
-            ) : (
-              <>
-                <p className="bubble-definition">{definitionBubble.definition}</p>
-                <div className="bubble-links">
-                  {definitionBubble.wikiUrl && (
-                    <a href={definitionBubble.wikiUrl} target="_blank" rel="noopener noreferrer" className="bubble-link">
-                      Wikipedia →
-                    </a>
-                  )}
-                  {definitionBubble.searchUrl && (
-                    <a href={definitionBubble.searchUrl} target="_blank" rel="noopener noreferrer" className="bubble-link">
-                      Buscar más →
-                    </a>
-                  )}
+
+            <div className="bubble-main">
+              {definitionBubble.image && (
+                <div className="bubble-image">
+                  <img src={definitionBubble.image} alt={definitionBubble.word} />
                 </div>
-              </>
+              )}
+              <h3>{definitionBubble.word}</h3>
+              {definitionBubble.ministry && <span className="bubble-ministry">{definitionBubble.ministry}</span>}
+              {definitionBubble.loading ? (
+                <p className="bubble-loading">Buscando definición...</p>
+              ) : (
+                <>
+                  <p className="bubble-definition">{definitionBubble.definition}</p>
+                  <div className="bubble-links">
+                    {definitionBubble.wikiUrl && (
+                      <a href={definitionBubble.wikiUrl} target="_blank" rel="noopener noreferrer" className="bubble-link">
+                        Wikipedia →
+                      </a>
+                    )}
+                    {definitionBubble.searchUrl && (
+                      <a href={definitionBubble.searchUrl} target="_blank" rel="noopener noreferrer" className="bubble-link">
+                        Buscar más →
+                      </a>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Issues sidebar */}
+            {definitionBubble.issues?.length > 0 && (
+              <div className="bubble-issues">
+                <div className="issues-header">
+                  <span className="issues-icon">⚡</span>
+                  <span className="issues-title">Conflictos Asociados</span>
+                </div>
+                <div className="issues-list">
+                  {definitionBubble.issues.map((issue) => (
+                    <div
+                      key={issue.id}
+                      className={`issue-item issue-${issue.status}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        // TODO: Navigate to crowd reasoning module
+                        onShowInfo?.(`Abriendo deliberación: ${issue.title}`)
+                        onNavigate?.('crowdreasoning', { issueId: issue.id })
+                      }}
+                    >
+                      <div className="issue-status-indicator" data-status={issue.status} />
+                      <div className="issue-content">
+                        <span className="issue-title">{issue.title}</span>
+                        <span className="issue-description">{issue.description}</span>
+                        <span className="issue-status-label">
+                          {issue.status === 'open' && 'Abierto'}
+                          {issue.status === 'deliberating' && 'En deliberación'}
+                          {issue.status === 'ready_to_vote' && 'Listo para votar'}
+                          {issue.status === 'voting' && 'En votación'}
+                        </span>
+                      </div>
+                      <span className="issue-arrow">→</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="issues-note">
+                  Click en un conflicto para abrir el mapa de argumentos
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -779,11 +945,16 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       {/* Add word bubble */}
       {addWordBubble && (
-        <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setAddWordBubble(null); }}>
-          <div className="bubble-content add-word-bubble" onClick={(e) => e.stopPropagation()}>
-            <button className="bubble-close" onClick={() => setAddWordBubble(null)}>×</button>
+        <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setAddWordBubble(null); }} onContextMenu={(e) => e.preventDefault()}>
+          <div className="bubble-content add-word-bubble" onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.stopPropagation()}>
+            <button className="bubble-close" onClick={() => { setAddWordBubble(null); setAddWordParent(null); }}>×</button>
             <h3>Nueva Palabra</h3>
-            <p className="bubble-subtitle">en "{wordsMap[currentNodeId]?.label || 'topics'}"</p>
+            <p className="bubble-subtitle">
+              {addWordParent
+                ? `hijo de "${addWordParent.text}"`
+                : `en "${wordsMap[currentNodeId]?.label || 'topics'}"`
+              }
+            </p>
 
             <div className="form-group">
               <label>Nombre</label>
@@ -816,7 +987,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
             </div>
 
             <div className="form-actions">
-              <button className="btn-cancel" onClick={() => setAddWordBubble(null)} disabled={saving}>
+              <button className="btn-cancel" onClick={() => { setAddWordBubble(null); setAddWordParent(null); }} disabled={saving}>
                 Cancelar
               </button>
               <button className="btn-save" onClick={handleSaveNewWord} disabled={saving || !newWordName.trim()}>
@@ -829,8 +1000,8 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       {/* Edit word bubble */}
       {editWordBubble && (
-        <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setEditWordBubble(null); }}>
-          <div className="bubble-content add-word-bubble" onClick={(e) => e.stopPropagation()}>
+        <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setEditWordBubble(null); }} onContextMenu={(e) => e.preventDefault()}>
+          <div className="bubble-content add-word-bubble" onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.stopPropagation()}>
             <button className="bubble-close" onClick={() => setEditWordBubble(null)}>×</button>
             <h3>Editar Palabra</h3>
             <p className="bubble-subtitle">"{editWordBubble.originalText}"</p>
