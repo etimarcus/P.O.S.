@@ -69,6 +69,14 @@
   transform: scale(0.95);
 }
 
+.wordcloud-container.panning {
+  cursor: grabbing !important;
+}
+
+.wordcloud-container.panning .word-item {
+  pointer-events: none;
+}
+
 /* ═══════════════════════════════════════════
    WORD ITEMS
 ═══════════════════════════════════════════ */
@@ -125,6 +133,22 @@
 .word-item.has-children:hover .word-indicator {
   opacity: 1;
   transform: translateY(-50%) translateX(3px);
+}
+
+/* Activated word for connection */
+.word-item.activated {
+  outline: 2px dashed var(--accent-gold);
+  outline-offset: 4px;
+  animation: activatedPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes activatedPulse {
+  0%, 100% {
+    outline-color: var(--accent-gold);
+  }
+  50% {
+    outline-color: var(--accent-gold-dim);
+  }
 }
 
 /* Size variations */
@@ -208,6 +232,70 @@
   50% {
     opacity: 0.8;
   }
+}
+
+/* ═══════════════════════════════════════════
+   ACTIVATED WORD INDICATOR
+═══════════════════════════════════════════ */
+
+.activated-word-indicator {
+  position: absolute;
+  top: 2rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid var(--accent-gold-dim);
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-light);
+  z-index: 20;
+}
+
+.activated-word-indicator strong {
+  color: var(--accent-gold);
+}
+
+.activated-word-indicator button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  margin-left: 0.5rem;
+  transition: color 0.2s;
+}
+
+.activated-word-indicator button:hover {
+  color: var(--accent-gold);
+}
+
+/* ═══════════════════════════════════════════
+   CONTROLS HINT
+═══════════════════════════════════════════ */
+
+.controls-hint {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 1rem;
+  display: flex;
+  gap: 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.controls-hint span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 /* ═══════════════════════════════════════════
@@ -322,6 +410,175 @@
 }
 
 /* ═══════════════════════════════════════════
+   ADD WORD BUBBLE FORM
+═══════════════════════════════════════════ */
+
+.add-word-bubble {
+  max-width: 420px;
+}
+
+.bubble-subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem 0;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--accent-gold-dim);
+  border-radius: 6px;
+  color: var(--text-light);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--accent-gold);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.form-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ministry selector */
+.ministry-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ministry-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--accent-gold-dim);
+  border-radius: 4px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ministry-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--ministry-color);
+}
+
+.ministry-option.selected {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--ministry-color);
+  color: var(--ministry-color);
+}
+
+.ministry-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ministry-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ministry-color);
+}
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-gold-dim);
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 0.6rem 1.25rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  border-color: var(--text-light);
+  color: var(--text-light);
+}
+
+.btn-save {
+  background: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+  color: #111;
+  font-weight: 600;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: var(--accent-gold-dim);
+  border-color: var(--accent-gold-dim);
+}
+
+.btn-save:disabled,
+.btn-cancel:disabled,
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  padding: 0.6rem 1.25rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  border: 1px solid #e53935;
+  color: #e53935;
+  margin-right: auto;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: rgba(229, 57, 53, 0.15);
+}
+
+/* ═══════════════════════════════════════════
    MOBILE RESPONSIVE STYLES
 ═══════════════════════════════════════════ */
 
@@ -382,6 +639,22 @@
 
   .bubble-image {
     max-height: 150px;
+  }
+
+  .activated-word-indicator {
+    top: 1.5rem;
+    font-size: 0.6rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .controls-hint {
+    font-size: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .ministry-option {
+    font-size: 0.6rem;
+    padding: 0.35rem 0.6rem;
   }
 }
 
@@ -485,6 +758,52 @@
 
   .bubble-link {
     font-size: 0.7rem;
+  }
+
+  .activated-word-indicator {
+    top: 1rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.55rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .controls-hint {
+    display: none;
+  }
+
+  .add-word-bubble {
+    max-width: 280px;
+  }
+
+  .form-group input {
+    padding: 0.6rem 0.75rem;
+    font-size: 1rem;
+  }
+
+  .ministry-selector {
+    gap: 0.35rem;
+  }
+
+  .ministry-option {
+    font-size: 0.55rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .ministry-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .form-actions {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    padding: 0.5rem 1rem;
+    font-size: 0.65rem;
   }
 }
 
