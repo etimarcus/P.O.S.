@@ -10,6 +10,7 @@ import './App.css'
 function App() {
   const [infoMessage, setInfoMessage] = useState('')
   const [infoVisible, setInfoVisible] = useState(false)
+  const [expandedQuadrant, setExpandedQuadrant] = useState(null)
 
   const showInfo = useCallback((message) => {
     setInfoMessage(message)
@@ -34,6 +35,35 @@ function App() {
     showInfo('C.O.S. — Community Operating System v0.1')
   }
 
+  const handleExpand = useCallback((quadrant) => {
+    setExpandedQuadrant(quadrant)
+  }, [])
+
+  const handleCollapse = useCallback(() => {
+    setExpandedQuadrant(null)
+  }, [])
+
+  // Expanded view
+  if (expandedQuadrant === 'ur') {
+    return (
+      <div className="app expanded">
+        <button className="back-button" onClick={handleCollapse}>
+          ← Back
+        </button>
+        <div className="os-container expanded">
+          <UpperRight
+            onNavigate={handleNavigate}
+            onShowInfo={showInfo}
+            expanded={true}
+          />
+        </div>
+        <div className={`info-panel ${infoVisible ? 'visible' : ''}`}>
+          {infoMessage}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       {/* Cross dividers */}
@@ -44,7 +74,7 @@ function App() {
       {/* Quadrant grid */}
       <div className="os-container">
         <UpperLeft onNavigate={handleNavigate} onShowInfo={showInfo} />
-        <UpperRight onNavigate={handleNavigate} onShowInfo={showInfo} />
+        <UpperRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ur')} />
         <LowerLeft onNavigate={handleNavigate} onShowInfo={showInfo} />
         <LowerRight onNavigate={handleNavigate} onShowInfo={showInfo} />
       </div>

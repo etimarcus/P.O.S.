@@ -1,85 +1,205 @@
 /* ═══════════════════════════════════════════
-   LL - HANDS (Giving/Receiving)
+   LL - HANDS (Giving/Receiving) - Visual Template
 ═══════════════════════════════════════════ */
 
 .quadrant-ll {
   background: linear-gradient(45deg, rgba(20, 30, 20, 0.9), rgba(10, 15, 10, 0.95));
 }
 
-.hands-container {
+/* ═══════════════════════════════════════════
+   HANDS VISUAL CONTAINER
+═══════════════════════════════════════════ */
+
+.hands-visual-container {
   position: relative;
-  width: 350px;
-  height: 280px;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
 }
 
-.hand {
-  position: absolute;
-  width: 140px;
-  height: 180px;
+.hand-visual {
+  position: relative;
+  width: 180px;
+  height: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.hand:hover {
-  transform: scale(1.05);
+.hand-visual.hovered {
+  transform: scale(1.02);
 }
 
-.hand-giving {
-  left: 10px;
-}
-
-.hand-receiving {
-  right: 10px;
-}
-
-.hand-icon {
-  font-size: 5rem;
-  margin-bottom: 0.5rem;
-  filter: drop-shadow(0 0 10px rgba(201, 162, 39, 0.3));
-}
-
-.hand-giving .hand-icon {
-  transform: scaleX(-1);
-}
-
-.hand-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.hand-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: var(--accent-gold);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
 }
 
-.hand-stats {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
+/* ═══════════════════════════════════════════
+   SVG HAND STYLING
+═══════════════════════════════════════════ */
+
+.hand-svg {
+  width: 140px;
+  height: 200px;
+  overflow: visible;
 }
 
-.hands-divider {
-  width: 2px;
-  height: 120px;
-  background: linear-gradient(to bottom, transparent, var(--accent-gold), transparent);
+.hand-svg .palm {
+  fill: rgba(201, 162, 39, 0.15);
+  stroke: var(--accent-gold-dim);
+  stroke-width: 2;
+  transition: all 0.3s ease;
 }
+
+.hand-svg .finger {
+  fill: rgba(201, 162, 39, 0.1);
+  stroke: var(--accent-gold-dim);
+  stroke-width: 1.5;
+  transition: all 0.3s ease;
+}
+
+.hand-visual.hovered .palm {
+  fill: rgba(201, 162, 39, 0.25);
+  stroke: var(--accent-gold);
+}
+
+.hand-visual.hovered .finger {
+  fill: rgba(201, 162, 39, 0.2);
+  stroke: var(--accent-gold);
+}
+
+/* ═══════════════════════════════════════════
+   FINGER WORDS POSITIONING
+═══════════════════════════════════════════ */
+
+.finger-words {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.finger-word {
+  position: absolute;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.finger-word:hover {
+  color: var(--accent-gold);
+  text-shadow: 0 0 15px var(--accent-gold);
+  transform: scale(1.1);
+}
+
+.finger-word.selected {
+  color: var(--accent-gold);
+  text-shadow: 0 0 20px var(--accent-gold);
+}
+
+/* Give hand word positions (left hand) */
+.hand-give .finger-word-thumb {
+  top: 72%;
+  left: -15%;
+  transform: rotate(-30deg);
+}
+
+.hand-give .finger-word-index {
+  top: 25%;
+  left: 5%;
+}
+
+.hand-give .finger-word-middle {
+  top: 12%;
+  left: 28%;
+}
+
+.hand-give .finger-word-ring {
+  top: 18%;
+  left: 55%;
+}
+
+.hand-give .finger-word-pinky {
+  top: 32%;
+  right: -10%;
+}
+
+/* Receive hand word positions (right hand - mirrored) */
+.hand-receive .finger-word-pinky {
+  top: 32%;
+  left: -10%;
+}
+
+.hand-receive .finger-word-ring {
+  top: 18%;
+  left: 10%;
+}
+
+.hand-receive .finger-word-middle {
+  top: 12%;
+  left: 35%;
+}
+
+.hand-receive .finger-word-index {
+  top: 25%;
+  right: 5%;
+}
+
+.hand-receive .finger-word-thumb {
+  top: 72%;
+  right: -15%;
+  transform: rotate(30deg);
+}
+
+/* ═══════════════════════════════════════════
+   CENTER DIVIDER
+═══════════════════════════════════════════ */
+
+.hands-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
+}
+
+.ampersand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 300;
+  color: var(--accent-gold);
+  opacity: 0.6;
+  text-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
+}
+
+/* ═══════════════════════════════════════════
+   FLOW INDICATOR
+═══════════════════════════════════════════ */
 
 .contribution-flow {
   position: absolute;
-  bottom: 0;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 0.5rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--text-muted);
 }
 
 .flow-dot {
@@ -96,4 +216,356 @@
 @keyframes flowPulse {
   0%, 100% { opacity: 0.3; transform: scale(0.8); }
   50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ═══════════════════════════════════════════
+   WORD DETAIL BUBBLE
+═══════════════════════════════════════════ */
+
+.word-bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.word-bubble .bubble-content {
+  background: var(--glass-bg, rgba(20, 25, 20, 0.95));
+  border: 1px solid var(--accent-gold-dim, rgba(201, 162, 39, 0.3));
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  max-width: 350px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.word-bubble .bubble-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-muted, #888);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.word-bubble .bubble-close:hover {
+  color: var(--accent-gold, #c9a227);
+}
+
+.word-bubble h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+  margin: 0 0 0.5rem 0;
+  text-transform: capitalize;
+}
+
+.bubble-hand-type {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.bubble-description {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--text-light, #e8e4d9);
+  line-height: 1.6;
+  margin: 1rem 0 0 0;
+}
+
+/* ═══════════════════════════════════════════
+   EXPANDED VIEW ADJUSTMENTS
+═══════════════════════════════════════════ */
+
+.quadrant-ll.expanded .hand-visual {
+  width: 280px;
+  height: 380px;
+}
+
+.quadrant-ll.expanded .hand-svg {
+  width: 220px;
+  height: 320px;
+}
+
+.quadrant-ll.expanded .hand-title {
+  font-size: 2rem;
+}
+
+.quadrant-ll.expanded .finger-word {
+  font-size: 1.2rem;
+}
+
+.quadrant-ll.expanded .ampersand {
+  font-size: 5rem;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE STYLES
+═══════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .hands-visual-container {
+    gap: 0.5rem;
+  }
+
+  .hand-visual {
+    width: 140px;
+    height: 190px;
+  }
+
+  .hand-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hand-svg {
+    width: 110px;
+    height: 160px;
+  }
+
+  .finger-word {
+    font-size: 0.7rem;
+  }
+
+  .ampersand {
+    font-size: 2rem;
+  }
+
+  /* Adjusted word positions for tablet */
+  .hand-give .finger-word-thumb {
+    top: 70%;
+    left: -10%;
+  }
+
+  .hand-give .finger-word-index {
+    top: 28%;
+    left: 0%;
+  }
+
+  .hand-give .finger-word-middle {
+    top: 15%;
+    left: 22%;
+  }
+
+  .hand-give .finger-word-ring {
+    top: 20%;
+    left: 50%;
+  }
+
+  .hand-give .finger-word-pinky {
+    top: 35%;
+    right: -5%;
+  }
+
+  .hand-receive .finger-word-pinky {
+    top: 35%;
+    left: -5%;
+  }
+
+  .hand-receive .finger-word-ring {
+    top: 20%;
+    left: 5%;
+  }
+
+  .hand-receive .finger-word-middle {
+    top: 15%;
+    left: 30%;
+  }
+
+  .hand-receive .finger-word-index {
+    top: 28%;
+    right: 0%;
+  }
+
+  .hand-receive .finger-word-thumb {
+    top: 70%;
+    right: -10%;
+  }
+
+  .contribution-flow {
+    bottom: 0.5rem;
+  }
+
+  .flow-dot {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .hands-visual-container {
+    gap: 0.25rem;
+    padding: 0 0.25rem;
+  }
+
+  .hand-visual {
+    width: 100px;
+    height: 140px;
+  }
+
+  .hand-title {
+    font-size: 0.8rem;
+    margin-bottom: 0.15rem;
+    letter-spacing: 0.05em;
+  }
+
+  .hand-svg {
+    width: 80px;
+    height: 115px;
+  }
+
+  .hand-svg .palm {
+    stroke-width: 1.5;
+  }
+
+  .hand-svg .finger {
+    stroke-width: 1;
+  }
+
+  .finger-word {
+    font-size: 0.55rem;
+    font-weight: 700;
+  }
+
+  .ampersand {
+    font-size: 1.4rem;
+    padding: 0 0.15rem;
+  }
+
+  /* Tighter word positions for mobile */
+  .hand-give .finger-word-thumb {
+    top: 68%;
+    left: -5%;
+    transform: rotate(-20deg);
+  }
+
+  .hand-give .finger-word-index {
+    top: 30%;
+    left: -2%;
+  }
+
+  .hand-give .finger-word-middle {
+    top: 18%;
+    left: 18%;
+  }
+
+  .hand-give .finger-word-ring {
+    top: 22%;
+    left: 45%;
+  }
+
+  .hand-give .finger-word-pinky {
+    top: 36%;
+    right: -2%;
+  }
+
+  .hand-receive .finger-word-pinky {
+    top: 36%;
+    left: -2%;
+  }
+
+  .hand-receive .finger-word-ring {
+    top: 22%;
+    left: 2%;
+  }
+
+  .hand-receive .finger-word-middle {
+    top: 18%;
+    left: 28%;
+  }
+
+  .hand-receive .finger-word-index {
+    top: 30%;
+    right: -2%;
+  }
+
+  .hand-receive .finger-word-thumb {
+    top: 68%;
+    right: -5%;
+    transform: rotate(20deg);
+  }
+
+  .contribution-flow {
+    bottom: 0.25rem;
+    gap: 0.3rem;
+  }
+
+  .flow-dot {
+    width: 4px;
+    height: 4px;
+  }
+
+  /* Mobile bubble */
+  .word-bubble .bubble-content {
+    padding: 1rem 1.25rem;
+    max-width: 280px;
+  }
+
+  .word-bubble h3 {
+    font-size: 1.4rem;
+  }
+
+  .bubble-hand-type {
+    font-size: 0.6rem;
+  }
+
+  .bubble-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .hand-visual {
+    width: 85px;
+    height: 120px;
+  }
+
+  .hand-title {
+    font-size: 0.7rem;
+  }
+
+  .hand-svg {
+    width: 68px;
+    height: 100px;
+  }
+
+  .finger-word {
+    font-size: 0.5rem;
+  }
+
+  .ampersand {
+    font-size: 1.1rem;
+  }
+}
+
+/* Landscape mobile - stack vertically */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hands-visual-container {
+    transform: scale(0.7);
+  }
 }

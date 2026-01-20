@@ -162,3 +162,160 @@
 .info-panel.visible {
   opacity: 1;
 }
+
+/* ═══════════════════════════════════════════
+   EXPANDED VIEW
+═══════════════════════════════════════════ */
+
+.os-container.expanded {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.back-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--accent-gold-dim);
+  border-radius: 6px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: var(--accent-gold-dim);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE STYLES
+═══════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .quadrant {
+    padding: 1rem;
+  }
+
+  .quadrant-label {
+    font-size: 1.5rem;
+  }
+
+  .quadrant-subtitle {
+    font-size: 0.6rem;
+  }
+
+  .cross-vertical,
+  .cross-horizontal {
+    width: 2px;
+    height: 2px;
+  }
+
+  .cross-center {
+    width: 18px;
+    height: 18px;
+  }
+
+  .click-hint {
+    font-size: 0.55rem;
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .info-panel {
+    bottom: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    max-width: 90vw;
+  }
+
+  .back-button {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .quadrant {
+    padding: 0.75rem;
+  }
+
+  .quadrant-label {
+    font-size: 1.2rem;
+  }
+
+  .quadrant-subtitle {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .quadrant-header {
+    margin-bottom: 0.25rem;
+  }
+
+  .cross-vertical {
+    width: 1px;
+  }
+
+  .cross-horizontal {
+    height: 1px;
+  }
+
+  .cross-center {
+    width: 14px;
+    height: 14px;
+  }
+
+  .click-hint {
+    font-size: 0.5rem;
+    opacity: 0.7;
+  }
+
+  /* Always show click hint on mobile since no hover */
+  .quadrant .click-hint {
+    opacity: 0.5;
+  }
+
+  .info-panel {
+    bottom: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.6rem;
+    border-radius: 6px;
+  }
+
+  .back-button {
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.35rem 0.6rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .quadrant {
+    padding: 0.5rem;
+  }
+
+  .quadrant-label {
+    font-size: 1rem;
+  }
+
+  .quadrant-subtitle {
+    font-size: 0.45rem;
+  }
+
+  .cross-center {
+    width: 12px;
+    height: 12px;
+  }
+}
