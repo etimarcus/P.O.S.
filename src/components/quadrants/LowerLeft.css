@@ -21,8 +21,8 @@
 
 .hands-wrapper {
   position: relative;
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 75%;
+  max-height: 75%;
   aspect-ratio: 2 / 1;
 }
 
@@ -716,5 +716,363 @@
 
   .hand-label {
     font-size: 0.45rem;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   TASK PROPOSAL BUBBLE
+═══════════════════════════════════════════ */
+
+.proposal-bubble {
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.proposal-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-muted, #888);
+  margin: 0.25rem 0 1.25rem 0;
+}
+
+.proposal-bubble .form-group {
+  margin-bottom: 1rem;
+}
+
+.proposal-bubble .form-group label {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.proposal-bubble .form-group input[type="text"],
+.proposal-bubble .form-group input[type="url"],
+.proposal-bubble .form-group textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--text-light, #e8e4d9);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.proposal-bubble .form-group input:focus,
+.proposal-bubble .form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-gold, #c9a227);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.proposal-bubble .form-group input::placeholder,
+.proposal-bubble .form-group textarea::placeholder {
+  color: var(--text-muted, #666);
+}
+
+.proposal-bubble .form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* Form Sections */
+.proposal-bubble .form-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.proposal-bubble .form-section .section-label {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Effort Grid */
+.effort-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.effort-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.effort-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 80px;
+  text-align: right;
+}
+
+.effort-slider input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.effort-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-gold, #c9a227);
+  cursor: pointer;
+}
+
+.effort-slider input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-gold, #c9a227);
+  cursor: pointer;
+  border: none;
+}
+
+.effort-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-light, #e8e4d9);
+  width: 20px;
+  text-align: center;
+}
+
+/* Tempus Magnitude (vector size) */
+.tempus-magnitude {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tempus-magnitude label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tempus-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tempus-hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+}
+
+.tempus-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tempus-input input[type="number"] {
+  width: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  color: var(--text-light, #e8e4d9);
+  text-align: right;
+}
+
+.tempus-input input[type="number"]:focus {
+  outline: none;
+  border-color: #dda0dd;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tempus-unit {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+}
+
+/* Inline Groups */
+.inline-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inline-group label {
+  margin-bottom: 0 !important;
+  white-space: nowrap;
+}
+
+.time-inputs,
+.participants-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.time-inputs input[type="number"],
+.participants-inputs input[type="number"] {
+  width: 70px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-light, #e8e4d9);
+  text-align: center;
+}
+
+.time-inputs select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-light, #e8e4d9);
+  cursor: pointer;
+}
+
+.time-inputs select option {
+  background: #1a1a1a;
+  color: var(--text-light, #e8e4d9);
+}
+
+.participants-inputs span {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+}
+
+/* Reasoning Section */
+.reasoning-section {
+  margin-top: 1rem;
+}
+
+.reasoning-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-gold, #c9a227);
+  cursor: pointer;
+}
+
+.radio-option span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.reasoning-url {
+  margin-left: 24px;
+  margin-top: 0.4rem;
+}
+
+/* Form Actions */
+.proposal-bubble .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.proposal-bubble .btn-cancel,
+.proposal-bubble .btn-save {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.proposal-bubble .btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-muted, #888);
+}
+
+.proposal-bubble .btn-cancel:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--text-light, #e8e4d9);
+}
+
+.proposal-bubble .btn-save {
+  background: var(--accent-gold, #c9a227);
+  border: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.proposal-bubble .btn-save:hover:not(:disabled) {
+  background: #dab32e;
+}
+
+.proposal-bubble .btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .proposal-bubble {
+    max-width: 95%;
+    padding: 1rem;
+  }
+
+  .effort-slider {
+    flex-wrap: wrap;
+  }
+
+  .effort-label {
+    width: 100%;
+    text-align: left;
+  }
+
+  .inline-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .time-inputs,
+  .participants-inputs {
+    width: 100%;
   }
 }

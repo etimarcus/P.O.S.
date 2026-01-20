@@ -14,9 +14,9 @@ import './LowerRight.css'
 
 // Layer definitions
 const LAYERS = [
-  { id: 'normal', label: 'Vista Normal', icon: '🗺️', description: 'Vista estándar de la célula' },
-  { id: 'urgency', label: 'Urgencia', icon: '🚨', description: 'Demanda por sector (Verde/Amarillo/Rojo)' },
-  { id: 'activity', label: 'Actividad', icon: '⚡', description: 'Trabajo activo en cada zona' },
+  { id: 'normal', label: 'STATUS', icon: '', description: 'Vista estándar de la célula' },
+  { id: 'urgency', label: 'CRISIS MAP', icon: '', description: 'Demanda por sector (Verde/Amarillo/Rojo)' },
+  { id: 'activity', label: 'TEAMS', icon: '', description: 'Trabajo activo en cada zona' },
 ]
 
 // Mock data for sector info - will come from database
@@ -196,14 +196,6 @@ function UrgencyOverlay() {
           />
         )
       })}
-
-      {/* Legend */}
-      <circle cx="8" cy="90" r="2" fill="rgba(34, 197, 94, 0.8)" />
-      <text x="12" y="91.5" fontSize="3" fill="white">OK</text>
-      <circle cx="22" cy="90" r="2" fill="rgba(234, 179, 8, 0.8)" />
-      <text x="26" y="91.5" fontSize="3" fill="white">Atención</text>
-      <circle cx="44" cy="90" r="2" fill="rgba(239, 68, 68, 0.8)" />
-      <text x="48" y="91.5" fontSize="3" fill="white">Urgente</text>
     </svg>
   )
 }
@@ -241,7 +233,7 @@ function ActivityOverlay() {
                 cy={y}
                 r="4"
                 fill="none"
-                stroke="rgba(59, 130, 246, 0.6)"
+                stroke="rgba(0, 212, 255, 0.7)"
                 strokeWidth="0.5"
                 className="pulse-ring"
               />
@@ -250,9 +242,9 @@ function ActivityOverlay() {
               cx={x}
               cy={y}
               r="3"
-              fill="rgba(59, 130, 246, 0.3)"
-              stroke="rgba(59, 130, 246, 0.8)"
-              strokeWidth="0.3"
+              fill="rgba(0, 212, 255, 0.4)"
+              stroke="rgba(0, 212, 255, 1)"
+              strokeWidth="0.4"
             />
             <text
               x={x}
@@ -266,9 +258,6 @@ function ActivityOverlay() {
           </g>
         )
       })}
-
-      {/* Legend */}
-      <text x="5" y="92" fontSize="2.5" fill="rgba(59, 130, 246, 0.9)">● Trabajo activo</text>
     </svg>
   )
 }

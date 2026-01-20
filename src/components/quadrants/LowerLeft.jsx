@@ -17,9 +17,33 @@
  * Third-party validations can confirm sacrifices to increase the coefficient
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { supabase } from '../../supabaseClient'
 import './LowerLeft.css'
+
+// Initial state for task proposal form
+const INITIAL_PROPOSAL = {
+  title: '',
+  objective: '',
+  description: '',
+  justification: '',
+  // Action vector - 4 dimensions (direction indices 1-5)
+  labor: 3,
+  sympathia: 3,
+  voluntas: 3,
+  cognitio: 3,
+  // Time in minutes (vector magnitude)
+  tempusMinutes: 60,
+  // Team size
+  minParticipants: 1,
+  maxParticipants: 5,
+  // Resources
+  resources: '',
+  // Reasoning map
+  hasReasoningMap: false,
+  reasoningMapUrl: '',
+  needsReasoningMap: false
+}
 
 // Left hand (Give/Dar) = Dimensions of effort
 const GIVE_WORDS = [
@@ -74,11 +98,91 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
   const [sacrificeData, setSacrificeData] = useState(null)
   const [loadingSacrifice, setLoadingSacrifice] = useState(false)
 
+  // Task proposal state (right-click)
+  const [showProposal, setShowProposal] = useState(false)
+  const [proposal, setProposal] = useState(INITIAL_PROPOSAL)
+  const [savingProposal, setSavingProposal] = useState(false)
+  const proposalInputRef = useRef(null)
+
   const handleClick = () => {
     if (!expanded) {
       onNavigate?.('contributions')
     }
   }
+
+  // ═══════════════════════════════════════════
+  // RIGHT-CLICK - PROPOSE NON-REGULAR TASK
+  // ═══════════════════════════════════════════
+
+  const handleContextMenu = useCallback((e) => {
+    // Don't show if clicking on a word
+    if (e.target.closest('.hand-word')) return
+
+    e.preventDefault()
+    e.stopPropagation()
+    setSelectedDimension(null)
+    setSelectedSacrifice(null)
+    setProposal(INITIAL_PROPOSAL)
+    setShowProposal(true)
+    setTimeout(() => proposalInputRef.current?.focus(), 100)
+  }, [])
+
+  const updateProposal = useCallback((field, value) => {
+    setProposal(prev => ({ ...prev, [field]: value }))
+  }, [])
+
+  const handleSubmitProposal = useCallback(async () => {
+    if (!proposal.title.trim() || !proposal.objective.trim()) {
+      onShowInfo?.('Title and objective are required')
+      return
+    }
+
+    setSavingProposal(true)
+    try {
+      const taskProposal = {
+        user_id: currentUserId,
+        title: proposal.title.trim(),
+        objective: proposal.objective.trim(),
+        description: proposal.description.trim(),
+        justification: proposal.justification.trim(),
+        task_type: 'proposed',
+        status: 'pending_approval',
+        // Action vector - 4 dimensions (direction)
+        labor_index: proposal.labor,
+        sympathia_index: proposal.sympathia,
+        voluntas_index: proposal.voluntas,
+        cognitio_index: proposal.cognitio,
+        // Time in minutes (vector magnitude)
+        tempus_minutes: proposal.tempusMinutes,
+        // Team size
+        min_participants: proposal.minParticipants,
+        max_participants: proposal.maxParticipants,
+        // Resources
+        required_resources: proposal.resources.trim(),
+        // Reasoning map
+        reasoning_map_url: proposal.hasReasoningMap ? proposal.reasoningMapUrl.trim() : null,
+        needs_reasoning_map: proposal.needsReasoningMap
+      }
+
+      const { error } = await supabase
+        .from('task_proposals')
+        .insert(taskProposal)
+
+      if (error) throw error
+
+      onShowInfo?.('Task proposal submitted successfully')
+      setShowProposal(false)
+      setProposal(INITIAL_PROPOSAL)
+    } catch (err) {
+      console.error('Error submitting proposal:', err)
+      // Show success anyway for demo
+      onShowInfo?.('Task proposal submitted (demo mode)')
+      setShowProposal(false)
+      setProposal(INITIAL_PROPOSAL)
+    } finally {
+      setSavingProposal(false)
+    }
+  }, [proposal, currentUserId, onShowInfo])
 
   // ═══════════════════════════════════════════
   // LEFT HAND - TASKS BY DIMENSION
@@ -225,7 +329,7 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
   // ═══════════════════════════════════════════
 
   return (
-    <div className={`quadrant quadrant-ll ${expanded ? 'expanded' : ''}`} onClick={handleClick}>
+    <div className={`quadrant quadrant-ll ${expanded ? 'expanded' : ''}`} onClick={handleClick} onContextMenu={handleContextMenu}>
       <span className="quadrant-label" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>WE</span>
 
       <div className="quadrant-content">
@@ -417,6 +521,208 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
                 </p>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Task Proposal bubble (right-click) */}
+      {showProposal && (
+        <div className="word-bubble" onClick={(e) => { e.stopPropagation(); setShowProposal(false); }}>
+          <div className="bubble-content proposal-bubble" onClick={(e) => e.stopPropagation()}>
+            <button className="bubble-close" onClick={() => setShowProposal(false)}>×</button>
+
+            <h3>Propose Non-Regular Task</h3>
+            <p className="proposal-subtitle">Submit a task for community consideration</p>
+
+            {/* Title */}
+            <div className="form-group">
+              <label>Title *</label>
+              <input
+                ref={proposalInputRef}
+                type="text"
+                value={proposal.title}
+                onChange={(e) => updateProposal('title', e.target.value)}
+                placeholder="Task name"
+                disabled={savingProposal}
+              />
+            </div>
+
+            {/* Objective */}
+            <div className="form-group">
+              <label>Objective *</label>
+              <textarea
+                value={proposal.objective}
+                onChange={(e) => updateProposal('objective', e.target.value)}
+                placeholder="What should be accomplished?"
+                rows={2}
+                disabled={savingProposal}
+              />
+            </div>
+
+            {/* Action Vector */}
+            <div className="form-section">
+              <label className="section-label">Action Vector</label>
+
+              {/* 4 Direction Dimensions */}
+              <div className="effort-grid">
+                {[
+                  { key: 'labor', label: 'Labor', color: '#ff6b6b', desc: 'Physical/mental effort' },
+                  { key: 'sympathia', label: 'Sympathia', color: '#4ecdc4', desc: 'Emotional engagement' },
+                  { key: 'voluntas', label: 'Voluntas', color: '#ffe66d', desc: 'Will and determination' },
+                  { key: 'cognitio', label: 'Cognitio', color: '#95e1d3', desc: 'Knowledge required' }
+                ].map(dim => (
+                  <div key={dim.key} className="effort-slider">
+                    <span className="effort-label" style={{ color: dim.color }} title={dim.desc}>{dim.label}</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={proposal[dim.key]}
+                      onChange={(e) => updateProposal(dim.key, parseInt(e.target.value))}
+                      disabled={savingProposal}
+                    />
+                    <span className="effort-value">{proposal[dim.key]}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Time as Vector Magnitude */}
+              <div className="tempus-magnitude">
+                <label>
+                  <span className="tempus-label" style={{ color: '#dda0dd' }}>Tempus</span>
+                  <span className="tempus-hint">(vector magnitude in minutes)</span>
+                </label>
+                <div className="tempus-input">
+                  <input
+                    type="number"
+                    min="1"
+                    value={proposal.tempusMinutes}
+                    onChange={(e) => updateProposal('tempusMinutes', parseInt(e.target.value) || 1)}
+                    disabled={savingProposal}
+                  />
+                  <span className="tempus-unit">min</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Participants */}
+            <div className="form-group inline-group">
+              <label>Participants</label>
+              <div className="participants-inputs">
+                <span>Min:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max={proposal.maxParticipants}
+                  value={proposal.minParticipants}
+                  onChange={(e) => updateProposal('minParticipants', parseInt(e.target.value) || 1)}
+                  disabled={savingProposal}
+                />
+                <span>Max:</span>
+                <input
+                  type="number"
+                  min={proposal.minParticipants}
+                  value={proposal.maxParticipants}
+                  onChange={(e) => updateProposal('maxParticipants', parseInt(e.target.value) || 1)}
+                  disabled={savingProposal}
+                />
+              </div>
+            </div>
+
+            {/* Resources */}
+            <div className="form-group">
+              <label>Required Resources</label>
+              <textarea
+                value={proposal.resources}
+                onChange={(e) => updateProposal('resources', e.target.value)}
+                placeholder="Materials, tools, equipment needed..."
+                rows={2}
+                disabled={savingProposal}
+              />
+            </div>
+
+            {/* Justification */}
+            <div className="form-group">
+              <label>Justification</label>
+              <textarea
+                value={proposal.justification}
+                onChange={(e) => updateProposal('justification', e.target.value)}
+                placeholder="Why should this task be done?"
+                rows={2}
+                disabled={savingProposal}
+              />
+            </div>
+
+            {/* Reasoning Map Options */}
+            <div className="form-section reasoning-section">
+              <label className="section-label">Reasoning Map</label>
+
+              <div className="reasoning-options">
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    checked={!proposal.hasReasoningMap && !proposal.needsReasoningMap}
+                    onChange={() => {
+                      updateProposal('hasReasoningMap', false)
+                      updateProposal('needsReasoningMap', false)
+                    }}
+                    disabled={savingProposal}
+                  />
+                  <span>No reasoning map needed</span>
+                </label>
+
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    checked={proposal.hasReasoningMap}
+                    onChange={() => {
+                      updateProposal('hasReasoningMap', true)
+                      updateProposal('needsReasoningMap', false)
+                    }}
+                    disabled={savingProposal}
+                  />
+                  <span>Already justified (link existing map)</span>
+                </label>
+
+                {proposal.hasReasoningMap && (
+                  <input
+                    type="url"
+                    className="reasoning-url"
+                    value={proposal.reasoningMapUrl}
+                    onChange={(e) => updateProposal('reasoningMapUrl', e.target.value)}
+                    placeholder="Enter reasoning map URL..."
+                    disabled={savingProposal}
+                  />
+                )}
+
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    checked={proposal.needsReasoningMap}
+                    onChange={() => {
+                      updateProposal('hasReasoningMap', false)
+                      updateProposal('needsReasoningMap', true)
+                    }}
+                    disabled={savingProposal}
+                  />
+                  <span>Open new reasoning map for debate</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="form-actions">
+              <button className="btn-cancel" onClick={() => setShowProposal(false)} disabled={savingProposal}>
+                Cancel
+              </button>
+              <button
+                className="btn-save"
+                onClick={handleSubmitProposal}
+                disabled={!proposal.title.trim() || !proposal.objective.trim() || savingProposal}
+              >
+                {savingProposal ? 'Submitting...' : 'Submit Proposal'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -39,9 +39,9 @@ const LAYERS = ['perception', 'skills', 'health']
 
 const LAYER_INFO = {
   health: {
-    label: 'Salud',
+    label: 'Corpus',
     color: '#4CAF50',
-    icon: '✚',
+    icon: '',
     index: 2,
     canCreate: true,
     canEdit: false, // Only medical professionals
@@ -49,9 +49,9 @@ const LAYER_INFO = {
     description: 'Condiciones físicas. Requiere validación médica.'
   },
   skills: {
-    label: 'Habilidades',
+    label: 'Facultates',
     color: '#42a5f5',
-    icon: '★',
+    icon: '',
     index: 1,
     canCreate: true,
     canEdit: true,
@@ -59,9 +59,9 @@ const LAYER_INFO = {
     description: 'Habilidades y conocimientos que deseas adquirir.'
   },
   perception: {
-    label: 'Percepción',
+    label: 'Fama',
     color: '#ffffff',
-    icon: '●',
+    icon: '',
     index: 0,
     canCreate: false, // Others add these
     canEdit: false,
