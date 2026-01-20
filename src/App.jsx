@@ -1,19 +1,24 @@
 /**
- * C.O.S. — Community Operating System
+ * P.O.S. — People Operating System
  * Main application with quadrant layout
  */
 
 import { useState, useCallback, useEffect } from 'react'
 import { UpperLeft, UpperRight, LowerLeft, LowerRight } from './components/quadrants'
+import { Dashboard } from './components/Dashboard'
+import { Auth } from './components/Auth'
+import { useAuth } from './context/AuthContext'
 import './App.css'
 
 function App() {
+  const { user, loading } = useAuth()
   const [infoMessage, setInfoMessage] = useState('')
   const [infoVisible, setInfoVisible] = useState(false)
   const [expandedQuadrant, setExpandedQuadrant] = useState(null)
   const [centerZoom, setCenterZoom] = useState(null) // { progress: 0-1, startTime }
   const [showFinances, setShowFinances] = useState(false)
 
+  // All hooks must be called before any conditional returns
   const showInfo = useCallback((message) => {
     setInfoMessage(message)
     setInfoVisible(true)
@@ -33,10 +38,13 @@ function App() {
     showInfo(pageNames[destination] || destination)
   }, [showInfo])
 
-  const handleCenterClick = () => {
-    // Start zoom animation
-    setCenterZoom({ progress: 0, startTime: performance.now() })
-  }
+  const handleExpand = useCallback((quadrant) => {
+    setExpandedQuadrant(quadrant)
+  }, [])
+
+  const handleCollapse = useCallback(() => {
+    setExpandedQuadrant(null)
+  }, [])
 
   // Center zoom animation effect
   useEffect(() => {
@@ -66,31 +74,31 @@ function App() {
     return () => cancelAnimationFrame(animationId)
   }, [centerZoom?.startTime])
 
+  const handleCenterClick = () => {
+    setCenterZoom({ progress: 0, startTime: performance.now() })
+  }
+
   const handleBackFromFinances = () => {
     setShowFinances(false)
   }
 
-  const handleExpand = useCallback((quadrant) => {
-    setExpandedQuadrant(quadrant)
-  }, [])
-
-  const handleCollapse = useCallback(() => {
-    setExpandedQuadrant(null)
-  }, [])
-
-  // Finances view (center zoom destination)
-  if (showFinances) {
+  // Show loading state
+  if (loading) {
     return (
-      <div className="app finances-view">
-        <button className="back-button" onClick={handleBackFromFinances}>
-          ← Back
-        </button>
-        <div className="finances-container">
-          <h1>Personal Finances</h1>
-          <p>Module under development</p>
-        </div>
+      <div className="app loading-screen">
+        <div className="loading-text">Loading...</div>
       </div>
     )
+  }
+
+  // Show auth screen if not logged in
+  if (!user) {
+    return <Auth />
+  }
+
+  // Dashboard view (center zoom destination)
+  if (showFinances) {
+    return <Dashboard onBack={handleBackFromFinances} memberId={user.id} />
   }
 
   // Expanded view
@@ -130,10 +138,10 @@ function App() {
 
       {/* Quadrant grid */}
       <div className="os-container">
-        <UpperLeft onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ul')} />
-        <UpperRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ur')} />
-        <LowerLeft onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ll')} />
-        <LowerRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('lr')} />
+        <UpperLeft onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ul')} userId={user.id} />
+        <UpperRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ur')} userId={user.id} />
+        <LowerLeft onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('ll')} userId={user.id} />
+        <LowerRight onNavigate={handleNavigate} onShowInfo={showInfo} onExpand={() => handleExpand('lr')} userId={user.id} />
       </div>
 
       {/* Info Panel */}
