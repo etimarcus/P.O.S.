@@ -225,6 +225,7 @@ export function Dashboard({ onBack, memberId }) {
         {/* Treasury Section */}
         <section className="eco-section eco-treasury">
           <h2>Treasury</h2>
+          <p className="eco-desc">Funded by surplus production sold to members and visitors.</p>
           <div className="treasury-flow">
             <div className="treasury-sources">
               {treasury.filter(t => t.amount > 0).map((t, i) => (
@@ -318,7 +319,7 @@ export function Dashboard({ onBack, memberId }) {
             </div>
           </div>
           <p className="visitor-note">
-            Visitor purchases fund the treasury. Locals access goods through contribution, visitors through premium exchange.
+            Treasury is funded by surplus production sold. Visitor demand affects pricing — higher demand increases the exchange rate.
           </p>
         </section>
 
