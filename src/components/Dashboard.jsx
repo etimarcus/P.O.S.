@@ -294,29 +294,24 @@ export function Dashboard({ onBack, memberId }) {
           </p>
         </section>
 
-        {/* Surplus Pricing Tiers Section */}
+        {/* Surplus Pricing Section */}
         <section className="eco-section eco-pricing-tiers">
           <h2>Surplus Pricing</h2>
-          <p className="eco-desc">Surplus production is sold at three price tiers.</p>
-          <div className="pricing-tiers">
-            <div className="tier-card wholesale">
-              <div className="tier-label">Wholesale</div>
-              <div className="tier-price">$0.70</div>
-              <div className="tier-desc">Bulk sales to external markets</div>
-            </div>
+          <p className="eco-desc">Locals pay wholesale price. Visitors get a worse exchange rate.</p>
+          <div className="pricing-tiers two-tier">
             <div className="tier-card local">
-              <div className="tier-label">Local</div>
+              <div className="tier-label">Local / Wholesale</div>
               <div className="tier-price">₽1.00</div>
-              <div className="tier-desc">Members buying with Ruban</div>
+              <div className="tier-desc">Members & bulk sales — best price</div>
             </div>
             <div className="tier-card visitor">
               <div className="tier-label">Visitor</div>
-              <div className="tier-price">$1.50</div>
-              <div className="tier-desc">Tourists paying USD</div>
+              <div className="tier-price">$1.50+</div>
+              <div className="tier-desc">Tourists — worse exchange rate</div>
             </div>
           </div>
           <p className="pricing-note">
-            Visitor demand affects pricing — higher demand increases the visitor rate. Locals always pay less.
+            Visitor demand affects pricing — higher demand increases their rate. Locals always pay wholesale.
           </p>
         </section>
 

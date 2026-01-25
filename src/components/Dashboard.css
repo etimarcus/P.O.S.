@@ -1324,9 +1324,17 @@
   margin-bottom: 1rem;
 }
 
+.pricing-tiers.two-tier {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 500px;
+  margin: 0 auto 1rem;
+}
+
 @media (max-width: 600px) {
-  .pricing-tiers {
+  .pricing-tiers,
+  .pricing-tiers.two-tier {
     grid-template-columns: 1fr;
+    max-width: none;
   }
 }
 
