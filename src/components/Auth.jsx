@@ -8,12 +8,10 @@ import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
 export function Auth() {
-  const [memberId, setMemberId] = useState('')
-  const [showDevMode, setShowDevMode] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signInWithGoogle, setDevUser } = useAuth()
+  const { signInWithGoogle } = useAuth()
 
   const handleGoogleSignIn = async () => {
     setError('')
@@ -63,36 +61,6 @@ export function Auth() {
           </p>
         </div>
 
-        {/* Dev Mode Toggle */}
-        <div className="dev-mode-section">
-          <button
-            className="dev-mode-toggle"
-            onClick={() => setShowDevMode(!showDevMode)}
-          >
-            {showDevMode ? 'Hide' : 'Dev Mode'}
-          </button>
-
-          {showDevMode && (
-            <div className="dev-mode-form">
-              <input
-                type="text"
-                value={memberId}
-                onChange={(e) => setMemberId(e.target.value)}
-                placeholder="Enter Member ID (UUID)"
-              />
-              <button
-                onClick={() => {
-                  if (memberId.trim()) {
-                    setDevUser(memberId.trim())
-                  }
-                }}
-                disabled={!memberId.trim()}
-              >
-                Use Member ID
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )
