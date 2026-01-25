@@ -1314,6 +1314,161 @@
 }
 
 /* ═══════════════════════════════════════════
+   CORNUCOPIA TAB
+═══════════════════════════════════════════ */
+
+.cornucopia-tab {
+  width: 100%;
+  max-width: 900px;
+  color: var(--text-light, #e8e4d9);
+}
+
+.cornucopia-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.cornucopia-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+  margin-bottom: 0.5rem;
+}
+
+.cornucopia-subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+}
+
+.basket-section,
+.pickup-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.basket-section h2,
+.pickup-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--accent-gold, #c9a227);
+}
+
+.basket-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .basket-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .basket-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.basket-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(52, 211, 153, 0.15);
+  border-radius: 8px;
+}
+
+.basket-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.basket-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.basket-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-light, #e8e4d9);
+}
+
+.basket-quantity {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--emerald);
+  font-weight: 600;
+}
+
+.basket-status {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.basket-status.ready {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--emerald);
+}
+
+.basket-status.pending {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--voluntas);
+}
+
+.pickup-info {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.pickup-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pickup-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pickup-value {
+  font-size: 1rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.pickup-value.status-ready {
+  color: var(--emerald);
+  font-weight: 600;
+}
+
+.cornucopia-tab .cornucopia-note {
+  margin-top: 1rem;
+}
+
+/* ═══════════════════════════════════════════
    SURPLUS PRICING TIERS SECTION
 ═══════════════════════════════════════════ */
 

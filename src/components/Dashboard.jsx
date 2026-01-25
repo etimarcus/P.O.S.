@@ -11,6 +11,7 @@ import './Dashboard.css'
 
 // Tab configuration
 const TABS = [
+  { id: 'cornucopia', label: 'Cornucopia', icon: '🌽' },
   { id: 'economics', label: 'Economics', icon: '📊' },
   { id: 'wallet', label: 'Wallet', icon: '💰' },
   { id: 'calendar', label: 'Calendar', icon: '📅' },
@@ -102,7 +103,7 @@ const getWeightInsight = (period) => {
 
 export function Dashboard({ onBack, memberId }) {
   const { signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState('economics')
+  const [activeTab, setActiveTab] = useState('cornucopia')
 
   // Economics tab state
   const [loading, setLoading] = useState(true)
@@ -251,47 +252,6 @@ export function Dashboard({ onBack, memberId }) {
               <div className="value highlight">${formatNumber(period.total_surplus)}</div>
             </div>
           </div>
-        </section>
-
-        {/* Cornucopia Section - Basic Food Basket */}
-        <section className="eco-section eco-cornucopia">
-          <h2>🌽 Cornucopia</h2>
-          <p className="eco-desc">Your basic food basket — included for all contributing members.</p>
-          <div className="cornucopia-grid">
-            <div className="cornucopia-item">
-              <span className="item-icon">🥬</span>
-              <span className="item-name">Garden Produce</span>
-              <span className="item-status included">Included</span>
-            </div>
-            <div className="cornucopia-item">
-              <span className="item-icon">🥩</span>
-              <span className="item-name">Pastured Meat</span>
-              <span className="item-status included">Included</span>
-            </div>
-            <div className="cornucopia-item">
-              <span className="item-icon">🥛</span>
-              <span className="item-name">Yoghurt & Dairy</span>
-              <span className="item-status included">Included</span>
-            </div>
-            <div className="cornucopia-item">
-              <span className="item-icon">🥚</span>
-              <span className="item-name">Eggs</span>
-              <span className="item-status included">Included</span>
-            </div>
-            <div className="cornucopia-item">
-              <span className="item-icon">🍯</span>
-              <span className="item-name">Honey</span>
-              <span className="item-status included">Included</span>
-            </div>
-            <div className="cornucopia-item">
-              <span className="item-icon">🌾</span>
-              <span className="item-name">Grains & Bread</span>
-              <span className="item-status included">Included</span>
-            </div>
-          </div>
-          <p className="cornucopia-note">
-            Cornucopia covers your basic needs. Ruban Cash is for surplus purchases or USD conversion.
-          </p>
         </section>
 
         {/* Surplus Pricing Section */}
@@ -591,6 +551,140 @@ export function Dashboard({ onBack, memberId }) {
 
       {/* Content Area */}
       <div className="dashboard-content">
+        {activeTab === 'cornucopia' && (
+          <div className="cornucopia-tab">
+            <header className="cornucopia-header">
+              <h1>🌽 Cornucopia</h1>
+              <p className="cornucopia-subtitle">Your weekly food basket — included for all contributing members</p>
+            </header>
+
+            <section className="basket-section">
+              <h2>This Week's Basket</h2>
+              <div className="basket-grid">
+                <div className="basket-item">
+                  <span className="basket-icon">🥬</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Mixed Greens</span>
+                    <span className="basket-quantity">500g</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🥕</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Root Vegetables</span>
+                    <span className="basket-quantity">1 kg</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🍅</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Tomatoes</span>
+                    <span className="basket-quantity">750g</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🥩</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Pastured Beef</span>
+                    <span className="basket-quantity">500g</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🍗</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Pastured Chicken</span>
+                    <span className="basket-quantity">1 whole</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🥚</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Eggs</span>
+                    <span className="basket-quantity">12 units</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🥛</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Fresh Milk</span>
+                    <span className="basket-quantity">2 L</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🧀</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Cheese</span>
+                    <span className="basket-quantity">250g</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🥛</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Yoghurt</span>
+                    <span className="basket-quantity">500g</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🍯</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Honey</span>
+                    <span className="basket-quantity">250g</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🍞</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Sourdough Bread</span>
+                    <span className="basket-quantity">1 loaf</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+                <div className="basket-item">
+                  <span className="basket-icon">🌾</span>
+                  <div className="basket-details">
+                    <span className="basket-name">Grains & Flour</span>
+                    <span className="basket-quantity">1 kg</span>
+                  </div>
+                  <span className="basket-status ready">Ready</span>
+                </div>
+              </div>
+            </section>
+
+            <section className="pickup-section">
+              <h2>Pickup</h2>
+              <div className="pickup-info">
+                <div className="pickup-detail">
+                  <span className="pickup-label">Location</span>
+                  <span className="pickup-value">Community Store</span>
+                </div>
+                <div className="pickup-detail">
+                  <span className="pickup-label">Available</span>
+                  <span className="pickup-value">Saturday 8am - 12pm</span>
+                </div>
+                <div className="pickup-detail">
+                  <span className="pickup-label">Status</span>
+                  <span className="pickup-value status-ready">Ready for pickup</span>
+                </div>
+              </div>
+            </section>
+
+            <p className="cornucopia-note">
+              Quantities based on household size and production availability.
+              Use Ruban Cash for additional surplus items.
+            </p>
+          </div>
+        )}
+
         {activeTab === 'economics' && renderEconomicsTab()}
 
         {activeTab === 'wallet' && (
