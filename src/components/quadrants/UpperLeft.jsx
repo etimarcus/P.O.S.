@@ -76,7 +76,7 @@ const MOCK_USER_ID = '00000000-0000-0000-0000-000000000001'
 export function UpperLeft({ onNavigate, onShowInfo, onExpand, expanded, userId, isMedicalProfessional = false }) {
   const currentUserId = userId || MOCK_USER_ID
 
-  const [currentLayerIndex, setCurrentLayerIndex] = useState(1) // Start at skills (middle)
+  const [currentLayerIndex, setCurrentLayerIndex] = useState(2) // Start at health (Corpus)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
