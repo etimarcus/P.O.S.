@@ -555,108 +555,158 @@ export function Dashboard({ onBack, memberId }) {
           <div className="cornucopia-tab">
             <header className="cornucopia-header">
               <h1>🌽 Cornucopia</h1>
-              <p className="cornucopia-subtitle">Your weekly food basket — included for all contributing members</p>
+              <p className="cornucopia-subtitle">Customize your weekly food basket from available production</p>
             </header>
 
-            <section className="basket-section">
-              <h2>This Week's Basket</h2>
-              <div className="basket-grid">
-                <div className="basket-item">
-                  <span className="basket-icon">🥬</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Mixed Greens</span>
-                    <span className="basket-quantity">500g</span>
+            <section className="customize-section">
+              <h2>Customize Your Basket</h2>
+              <p className="customize-desc">Adjust quantities within available limits. What you don't take becomes surplus.</p>
+
+              <div className="product-list">
+                {/* Vegetables */}
+                <div className="product-category">
+                  <h3>🥬 Vegetables</h3>
+                  <div className="product-row">
+                    <span className="product-name">Mixed Greens</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="500" step="100" min="0" max="1000" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 1000g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🥕</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Root Vegetables</span>
-                    <span className="basket-quantity">1 kg</span>
+                  <div className="product-row">
+                    <span className="product-name">Root Vegetables</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="1000" step="250" min="0" max="2000" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 2000g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🍅</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Tomatoes</span>
-                    <span className="basket-quantity">750g</span>
+                  <div className="product-row">
+                    <span className="product-name">Tomatoes</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="750" step="250" min="0" max="1500" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 1500g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
                 </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🥩</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Pastured Beef</span>
-                    <span className="basket-quantity">500g</span>
+
+                {/* Meat */}
+                <div className="product-category">
+                  <h3>🥩 Meat</h3>
+                  <div className="product-row">
+                    <span className="product-name">Pastured Beef</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="500" step="100" min="0" max="1000" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 1000g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🍗</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Pastured Chicken</span>
-                    <span className="basket-quantity">1 whole</span>
+                  <div className="product-row">
+                    <span className="product-name">Pastured Chicken</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="1" step="1" min="0" max="2" />
+                      <span className="qty-unit">whole</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 2 available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
                 </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🥚</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Eggs</span>
-                    <span className="basket-quantity">12 units</span>
+
+                {/* Dairy & Eggs */}
+                <div className="product-category">
+                  <h3>🥛 Dairy & Eggs</h3>
+                  <div className="product-row">
+                    <span className="product-name">Fresh Milk</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="2" step="0.5" min="0" max="4" />
+                      <span className="qty-unit">L</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 4L available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🥛</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Fresh Milk</span>
-                    <span className="basket-quantity">2 L</span>
+                  <div className="product-row">
+                    <span className="product-name">Yoghurt</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="500" step="250" min="0" max="1000" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 1000g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🧀</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Cheese</span>
-                    <span className="basket-quantity">250g</span>
+                  <div className="product-row">
+                    <span className="product-name">Cheese</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="250" step="50" min="0" max="500" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 500g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🥛</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Yoghurt</span>
-                    <span className="basket-quantity">500g</span>
+                  <div className="product-row">
+                    <span className="product-name">Eggs</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="12" step="6" min="0" max="24" />
+                      <span className="qty-unit">units</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 24 available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
                 </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🍯</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Honey</span>
-                    <span className="basket-quantity">250g</span>
+
+                {/* Pantry */}
+                <div className="product-category">
+                  <h3>🍯 Pantry</h3>
+                  <div className="product-row">
+                    <span className="product-name">Honey</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="250" step="50" min="0" max="500" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 500g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🍞</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Sourdough Bread</span>
-                    <span className="basket-quantity">1 loaf</span>
+                  <div className="product-row">
+                    <span className="product-name">Sourdough Bread</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="1" step="1" min="0" max="2" />
+                      <span className="qty-unit">loaf</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 2 available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
-                </div>
-                <div className="basket-item">
-                  <span className="basket-icon">🌾</span>
-                  <div className="basket-details">
-                    <span className="basket-name">Grains & Flour</span>
-                    <span className="basket-quantity">1 kg</span>
+                  <div className="product-row">
+                    <span className="product-name">Grains & Flour</span>
+                    <div className="product-controls">
+                      <button className="qty-btn">−</button>
+                      <input type="number" className="qty-input" defaultValue="1000" step="500" min="0" max="2000" />
+                      <span className="qty-unit">g</span>
+                      <button className="qty-btn">+</button>
+                    </div>
+                    <span className="product-available">/ 2000g available</span>
                   </div>
-                  <span className="basket-status ready">Ready</span>
                 </div>
+              </div>
+
+              <div className="basket-actions">
+                <button className="btn-save-basket">Save My Basket</button>
+                <button className="btn-reset-basket">Reset to Default</button>
               </div>
             </section>
 
@@ -679,8 +729,8 @@ export function Dashboard({ onBack, memberId }) {
             </section>
 
             <p className="cornucopia-note">
-              Quantities based on household size and production availability.
-              Use Ruban Cash for additional surplus items.
+              What you don't allocate becomes surplus — sold at wholesale or to visitors.
+              You can also trade with other members.
             </p>
           </div>
         )}
