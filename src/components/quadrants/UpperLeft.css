@@ -602,16 +602,18 @@
 /* Tablet */
 @media (max-width: 768px) {
   .layer-indicator {
+    left: 50%;
+    transform: translateX(-50%);
     padding: 0.3rem 0.6rem;
     gap: 0.4rem;
   }
 
   .layer-icon {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
 
   .layer-name {
-    font-size: 0.6rem;
+    font-size: 1rem;
   }
 
   .layer-depth {
@@ -646,17 +648,20 @@
 @media (max-width: 480px) {
   .layer-indicator {
     top: 0.3rem;
-    left: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 0.25rem 0.5rem;
     gap: 0.3rem;
+    width: auto;
+    white-space: nowrap;
   }
 
   .layer-icon {
-    font-size: 0.7rem;
+    font-size: 1rem;
   }
 
   .layer-name {
-    font-size: 0.5rem;
+    font-size: 1rem;
   }
 
   .layer-depth {
