@@ -1,9 +1,9 @@
 /**
  * Authentication Context
- * Manages user authentication state with Supabase
+ * Manages user authentication state with Supabase + Google OAuth
  */
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../supabaseClient'
 
 const AuthContext = createContext({})
@@ -42,23 +42,18 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+  // Sign in with Google OAuth
+  const signInWithGoogle = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
     })
-    return { data, error }
-  }
+    return { error }
+  }, [])
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { data, error }
-  }
-
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     // Clear dev user if set
     if (user?.isDevUser) {
       setUser(null)
@@ -67,10 +62,10 @@ export function AuthProvider({ children }) {
     }
     const { error } = await supabase.auth.signOut()
     return { error }
-  }
+  }, [user])
 
   // Dev mode: set user directly with member ID
-  const setDevUser = (memberId) => {
+  const setDevUser = useCallback((memberId) => {
     const devUser = {
       id: memberId,
       email: 'dev@local',
@@ -78,13 +73,12 @@ export function AuthProvider({ children }) {
     }
     setUser(devUser)
     localStorage.setItem('devUserId', memberId)
-  }
+  }, [])
 
   const value = {
     user,
     loading,
-    signUp,
-    signIn,
+    signInWithGoogle,
     signOut,
     setDevUser,
   }
