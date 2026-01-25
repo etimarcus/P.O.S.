@@ -371,8 +371,13 @@ export function Dashboard({ onBack, memberId }) {
               <span className="formula-result">{formatNumber(summary.exchange_rate, 4)}</span>
             </div>
             <p className="exchange-insight">
-              Your profile weighted in scarce dimensions gives you a
-              {summary.exchange_rate > 0.25 ? ' favorable' : ' standard'} exchange rate.
+              Your exchange rate of {formatNumber(summary.exchange_rate, 4)} means each minute worked
+              converts to {formatNumber(summary.exchange_rate, 4)} Actions before DEVOTIO.
+              {summary.exchange_rate > 0.3
+                ? ' Your work aligns well with scarce dimensions.'
+                : summary.exchange_rate < 0.2
+                  ? ' Your work is concentrated in abundant dimensions.'
+                  : ' Your work is distributed across dimensions.'}
             </p>
           </section>
         )}
