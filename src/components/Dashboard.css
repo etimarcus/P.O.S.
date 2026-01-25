@@ -818,6 +818,94 @@
   font-style: italic;
 }
 
+/* Dual Weight Bars */
+.weights-grid.dual {
+  gap: 1.25rem;
+}
+
+.dual-weight-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.dual-weight-label {
+  width: 80px;
+  font-size: 0.9rem;
+  color: var(--text-light, #e8e4d9);
+  font-weight: 600;
+  padding-top: 0.25rem;
+}
+
+.dual-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bar-type {
+  width: 50px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dual-track {
+  flex: 1;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dual-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+.dual-fill.action-fill {
+  opacity: 0.6;
+}
+
+.bar-value {
+  width: 55px;
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+@media (max-width: 480px) {
+  .dual-weight-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dual-weight-label {
+    width: auto;
+  }
+
+  .bar-type {
+    width: 40px;
+    font-size: 0.6rem;
+  }
+
+  .bar-value {
+    width: 45px;
+    font-size: 0.7rem;
+  }
+}
+
 /* Profile Section */
 .profile-grid {
   display: grid;

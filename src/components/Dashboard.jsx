@@ -31,6 +31,34 @@ const WeightBar = ({ label, value, color }) => (
   </div>
 )
 
+const DualWeightBar = ({ label, actionPercent, weight, color }) => (
+  <div className="dual-weight-bar">
+    <div className="dual-weight-label">{label}</div>
+    <div className="dual-bars">
+      <div className="bar-row">
+        <span className="bar-type">Action</span>
+        <div className="dual-track">
+          <div
+            className="dual-fill action-fill"
+            style={{ width: `${actionPercent}%`, background: color, opacity: 0.6 }}
+          />
+        </div>
+        <span className="bar-value">{actionPercent.toFixed(1)}%</span>
+      </div>
+      <div className="bar-row">
+        <span className="bar-type">Weight</span>
+        <div className="dual-track">
+          <div
+            className="dual-fill weight-fill"
+            style={{ width: `${weight * 100 * 2}%`, background: color }}
+          />
+        </div>
+        <span className="bar-value">{(weight * 100).toFixed(1)}%</span>
+      </div>
+    </div>
+  </div>
+)
+
 const ActioBar = ({ label, value, color }) => (
   <div className="actio-bar">
     <div className="actio-label">{label}</div>
@@ -228,28 +256,43 @@ export function Dashboard({ onBack, memberId }) {
         <section className="eco-section eco-weights">
           <h2>Emergent Weights</h2>
           <p className="eco-desc">Scarcity determines value. Less abundant = higher weight.</p>
-          <div className="weights-grid">
-            <WeightBar
-              label="Cognitio"
-              value={period.weight_cognitive}
-              color="var(--cognitio)"
-            />
-            <WeightBar
-              label="Voluntas"
-              value={period.weight_volitional}
-              color="var(--voluntas)"
-            />
-            <WeightBar
-              label="Sympathia"
-              value={period.weight_emotional}
-              color="var(--sympathia)"
-            />
-            <WeightBar
-              label="Labor"
-              value={period.weight_physical}
-              color="var(--labor)"
-            />
-          </div>
+          {(() => {
+            const totalAction = (period.total_cognitive || 0) + (period.total_volitional || 0) +
+                               (period.total_emotional || 0) + (period.total_physical || 0)
+            const cognitioPercent = totalAction > 0 ? ((period.total_cognitive || 0) / totalAction) * 100 : 25
+            const voluntasPercent = totalAction > 0 ? ((period.total_volitional || 0) / totalAction) * 100 : 25
+            const sympathiaPercent = totalAction > 0 ? ((period.total_emotional || 0) / totalAction) * 100 : 25
+            const laborPercent = totalAction > 0 ? ((period.total_physical || 0) / totalAction) * 100 : 25
+
+            return (
+              <div className="weights-grid dual">
+                <DualWeightBar
+                  label="Cognitio"
+                  actionPercent={cognitioPercent}
+                  weight={period.weight_cognitive}
+                  color="var(--cognitio)"
+                />
+                <DualWeightBar
+                  label="Voluntas"
+                  actionPercent={voluntasPercent}
+                  weight={period.weight_volitional}
+                  color="var(--voluntas)"
+                />
+                <DualWeightBar
+                  label="Sympathia"
+                  actionPercent={sympathiaPercent}
+                  weight={period.weight_emotional}
+                  color="var(--sympathia)"
+                />
+                <DualWeightBar
+                  label="Labor"
+                  actionPercent={laborPercent}
+                  weight={period.weight_physical}
+                  color="var(--labor)"
+                />
+              </div>
+            )
+          })()}
           <p className="weights-insight">
             {getWeightInsight(period)}
           </p>
