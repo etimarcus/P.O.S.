@@ -1314,28 +1314,48 @@
 }
 
 /* ═══════════════════════════════════════════
-   VISITOR EXCHANGE RATE SECTION
+   SURPLUS PRICING TIERS SECTION
 ═══════════════════════════════════════════ */
 
-.visitor-rate-display {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
+.pricing-tiers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.rate-box {
+@media (max-width: 600px) {
+  .pricing-tiers {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tier-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 1.5rem 2.5rem;
+  padding: 1.25rem 1rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--accent-gold, #c9a227);
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
 }
 
-.rate-label {
+.tier-card.wholesale {
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.tier-card.local {
+  border-color: rgba(52, 211, 153, 0.3);
+  background: rgba(52, 211, 153, 0.05);
+}
+
+.tier-card.visitor {
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.tier-label {
   font-family: 'Space Mono', monospace;
   font-size: 0.7rem;
   color: var(--text-muted, #888);
@@ -1343,69 +1363,47 @@
   letter-spacing: 0.1em;
 }
 
-.rate-value {
-  font-family: 'Space Mono', monospace;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--accent-gold, #c9a227);
-}
-
-.rate-comparison {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 400px;
-}
-
-.comparison-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-}
-
-.comparison-label {
-  font-size: 0.8rem;
-  color: var(--text-muted, #888);
-  width: 100px;
-}
-
-.comparison-value {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-.comparison-value.external {
-  background: rgba(251, 191, 36, 0.15);
-  color: var(--voluntas);
-}
-
-.comparison-value.internal {
-  background: rgba(129, 140, 248, 0.15);
+.tier-card.wholesale .tier-label {
   color: var(--cognitio);
 }
 
-.comparison-value.ruban {
-  background: rgba(201, 162, 39, 0.15);
-  color: var(--accent-gold, #c9a227);
+.tier-card.local .tier-label {
+  color: var(--emerald);
 }
 
-.comparison-arrow {
+.tier-card.visitor .tier-label {
+  color: var(--voluntas);
+}
+
+.tier-price {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.tier-card.wholesale .tier-price {
+  color: var(--cognitio);
+}
+
+.tier-card.local .tier-price {
+  color: var(--emerald);
+}
+
+.tier-card.visitor .tier-price {
+  color: var(--voluntas);
+}
+
+.tier-desc {
+  font-size: 0.8rem;
   color: var(--text-muted, #888);
+  line-height: 1.3;
 }
 
-.visitor-note {
+.pricing-note {
   font-size: 0.85rem;
   color: var(--text-muted, #888);
   text-align: center;
-  margin-top: 0.5rem;
+  font-style: italic;
 }
 
 /* ═══════════════════════════════════════════

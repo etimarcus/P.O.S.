@@ -225,7 +225,7 @@ export function Dashboard({ onBack, memberId }) {
         {/* Treasury Section */}
         <section className="eco-section eco-treasury">
           <h2>Treasury</h2>
-          <p className="eco-desc">Funded by surplus production sold to members and visitors.</p>
+          <p className="eco-desc">Funded by surplus production sold at three price tiers: wholesale, local, and visitor.</p>
           <div className="treasury-flow">
             <div className="treasury-sources">
               {treasury.filter(t => t.amount > 0).map((t, i) => (
@@ -294,32 +294,29 @@ export function Dashboard({ onBack, memberId }) {
           </p>
         </section>
 
-        {/* Visitor Exchange Rate Section */}
-        <section className="eco-section eco-visitor-rate">
-          <h2>Visitor Exchange Rate</h2>
-          <p className="eco-desc">External USD → Ruban conversion for tourists and visitors.</p>
-          <div className="visitor-rate-display">
-            <div className="rate-box">
-              <span className="rate-label">Current Rate</span>
-              <span className="rate-value">$1.50 USD = ₽1 Ruban</span>
+        {/* Surplus Pricing Tiers Section */}
+        <section className="eco-section eco-pricing-tiers">
+          <h2>Surplus Pricing</h2>
+          <p className="eco-desc">Surplus production is sold at three price tiers.</p>
+          <div className="pricing-tiers">
+            <div className="tier-card wholesale">
+              <div className="tier-label">Wholesale</div>
+              <div className="tier-price">$0.70</div>
+              <div className="tier-desc">Bulk sales to external markets</div>
             </div>
-            <div className="rate-comparison">
-              <div className="comparison-row">
-                <span className="comparison-label">Visitor pays:</span>
-                <span className="comparison-value external">$15 USD</span>
-                <span className="comparison-arrow">→</span>
-                <span className="comparison-value ruban">₽10 Ruban</span>
-              </div>
-              <div className="comparison-row">
-                <span className="comparison-label">Local earns:</span>
-                <span className="comparison-value internal">~25 min work</span>
-                <span className="comparison-arrow">→</span>
-                <span className="comparison-value ruban">₽10 Ruban</span>
-              </div>
+            <div className="tier-card local">
+              <div className="tier-label">Local</div>
+              <div className="tier-price">₽1.00</div>
+              <div className="tier-desc">Members buying with Ruban</div>
+            </div>
+            <div className="tier-card visitor">
+              <div className="tier-label">Visitor</div>
+              <div className="tier-price">$1.50</div>
+              <div className="tier-desc">Tourists paying USD</div>
             </div>
           </div>
-          <p className="visitor-note">
-            Treasury is funded by surplus production sold. Visitor demand affects pricing — higher demand increases the exchange rate.
+          <p className="pricing-note">
+            Visitor demand affects pricing — higher demand increases the visitor rate. Locals always pay less.
           </p>
         </section>
 
