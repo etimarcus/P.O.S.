@@ -252,6 +252,76 @@ export function Dashboard({ onBack, memberId }) {
           </div>
         </section>
 
+        {/* Cornucopia Section - Basic Food Basket */}
+        <section className="eco-section eco-cornucopia">
+          <h2>🌽 Cornucopia</h2>
+          <p className="eco-desc">Your basic food basket — included for all contributing members.</p>
+          <div className="cornucopia-grid">
+            <div className="cornucopia-item">
+              <span className="item-icon">🥬</span>
+              <span className="item-name">Garden Produce</span>
+              <span className="item-status included">Included</span>
+            </div>
+            <div className="cornucopia-item">
+              <span className="item-icon">🥩</span>
+              <span className="item-name">Pastured Meat</span>
+              <span className="item-status included">Included</span>
+            </div>
+            <div className="cornucopia-item">
+              <span className="item-icon">🥛</span>
+              <span className="item-name">Yoghurt & Dairy</span>
+              <span className="item-status included">Included</span>
+            </div>
+            <div className="cornucopia-item">
+              <span className="item-icon">🥚</span>
+              <span className="item-name">Eggs</span>
+              <span className="item-status included">Included</span>
+            </div>
+            <div className="cornucopia-item">
+              <span className="item-icon">🍯</span>
+              <span className="item-name">Honey</span>
+              <span className="item-status included">Included</span>
+            </div>
+            <div className="cornucopia-item">
+              <span className="item-icon">🌾</span>
+              <span className="item-name">Grains & Bread</span>
+              <span className="item-status included">Included</span>
+            </div>
+          </div>
+          <p className="cornucopia-note">
+            Cornucopia covers your basic needs. Ruban Cash is for surplus purchases or USD conversion.
+          </p>
+        </section>
+
+        {/* Visitor Exchange Rate Section */}
+        <section className="eco-section eco-visitor-rate">
+          <h2>Visitor Exchange Rate</h2>
+          <p className="eco-desc">External USD → Ruban conversion for tourists and visitors.</p>
+          <div className="visitor-rate-display">
+            <div className="rate-box">
+              <span className="rate-label">Current Rate</span>
+              <span className="rate-value">$1.50 USD = ₽1 Ruban</span>
+            </div>
+            <div className="rate-comparison">
+              <div className="comparison-row">
+                <span className="comparison-label">Visitor pays:</span>
+                <span className="comparison-value external">$15 USD</span>
+                <span className="comparison-arrow">→</span>
+                <span className="comparison-value ruban">₽10 Ruban</span>
+              </div>
+              <div className="comparison-row">
+                <span className="comparison-label">Local earns:</span>
+                <span className="comparison-value internal">~25 min work</span>
+                <span className="comparison-arrow">→</span>
+                <span className="comparison-value ruban">₽10 Ruban</span>
+              </div>
+            </div>
+          </div>
+          <p className="visitor-note">
+            Visitor purchases fund the treasury. Locals access goods through contribution, visitors through premium exchange.
+          </p>
+        </section>
+
         {/* Emergent Weights Section */}
         <section className="eco-section eco-weights">
           <h2>Emergent Weights</h2>
@@ -409,11 +479,26 @@ export function Dashboard({ onBack, memberId }) {
               </div>
             </div>
 
+            {/* What Ruban is for */}
+            <div className="ruban-uses">
+              <h3>What is Ruban Cash for?</h3>
+              <div className="uses-grid">
+                <div className="use-item">
+                  <span className="use-icon">📦</span>
+                  <span className="use-text">Buy <strong>surplus production</strong> beyond your Cornucopia allotment</span>
+                </div>
+                <div className="use-item">
+                  <span className="use-icon">💵</span>
+                  <span className="use-text">Convert to <strong>USD</strong> for spending outside the local economy</span>
+                </div>
+              </div>
+            </div>
+
             {/* Redemption UI */}
             <div className="redeem-section">
               <h3>Redeem or Accumulate</h3>
               <p className="redeem-desc">
-                Convert Actions to Ruban Cash (liquidity now), or keep accumulating (larger future stake).
+                Convert Actions to Ruban Cash now, or keep accumulating for a larger future stake in the community.
               </p>
               <div className="redeem-form">
                 <input

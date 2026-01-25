@@ -1241,3 +1241,219 @@
   font-size: 0.8rem;
   color: var(--gold-dim);
 }
+
+/* ═══════════════════════════════════════════
+   CORNUCOPIA SECTION
+═══════════════════════════════════════════ */
+
+.eco-cornucopia h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cornucopia-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .cornucopia-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cornucopia-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cornucopia-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.cornucopia-item .item-icon {
+  font-size: 1.5rem;
+}
+
+.cornucopia-item .item-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.cornucopia-item .item-status {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.cornucopia-item .item-status.included {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--emerald);
+}
+
+.cornucopia-note {
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+  font-style: italic;
+  text-align: center;
+  padding-top: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════
+   VISITOR EXCHANGE RATE SECTION
+═══════════════════════════════════════════ */
+
+.visitor-rate-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.rate-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--accent-gold, #c9a227);
+  border-radius: 12px;
+}
+
+.rate-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.rate-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+}
+
+.rate-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.comparison-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.comparison-label {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  width: 100px;
+}
+
+.comparison-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.comparison-value.external {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--voluntas);
+}
+
+.comparison-value.internal {
+  background: rgba(129, 140, 248, 0.15);
+  color: var(--cognitio);
+}
+
+.comparison-value.ruban {
+  background: rgba(201, 162, 39, 0.15);
+  color: var(--accent-gold, #c9a227);
+}
+
+.comparison-arrow {
+  color: var(--text-muted, #888);
+}
+
+.visitor-note {
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════
+   RUBAN USES SECTION
+═══════════════════════════════════════════ */
+
+.ruban-uses {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.ruban-uses h3 {
+  margin-bottom: 1rem;
+}
+
+.uses-grid {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .uses-grid {
+    flex-direction: column;
+  }
+}
+
+.use-item {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.use-icon {
+  font-size: 1.5rem;
+}
+
+.use-text {
+  font-size: 0.9rem;
+  color: var(--text-light, #e8e4d9);
+  line-height: 1.4;
+}
+
+.use-text strong {
+  color: var(--accent-gold, #c9a227);
+}
