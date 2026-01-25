@@ -2,10 +2,25 @@
    MAIN APP CONTAINER
 ═══════════════════════════════════════════ */
 
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
 .app {
   width: 100vw;
   height: 100vh;
-  position: relative;
+  height: 100dvh; /* Dynamic viewport height for mobile */
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 /* Loading Screen */
@@ -53,9 +68,14 @@
 .os-container {
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════
@@ -140,6 +160,8 @@
   overflow: hidden;
   cursor: pointer;
   transition: all 0.4s ease;
+  min-width: 0;
+  min-height: 0;
 }
 
 .quadrant:hover {
@@ -233,6 +255,23 @@
   grid-template-rows: 1fr;
 }
 
+.os-container.expanded .quadrant {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app.expanded {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
 .back-button {
   position: fixed;
   top: 1rem;
@@ -256,29 +295,65 @@
   color: var(--accent-gold);
 }
 
+/* Position back button beneath quadrant labels when expanded */
+.expanded-ul .back-button {
+  top: 2.5rem;
+  left: 0.5rem;
+}
+
+.expanded-ur .back-button {
+  top: 2.5rem;
+  left: auto;
+  right: 0.5rem;
+}
+
+.expanded-ll .back-button {
+  top: auto;
+  bottom: 2.5rem;
+  left: 0.5rem;
+}
+
+.expanded-lr .back-button {
+  top: auto;
+  bottom: 2.5rem;
+  left: auto;
+  right: 0.5rem;
+}
+
 /* ═══════════════════════════════════════════
    MOBILE RESPONSIVE STYLES
 ═══════════════════════════════════════════ */
 
 /* Tablet */
 @media (max-width: 768px) {
+  .app, .os-container {
+    height: 100dvh;
+  }
+
   .quadrant {
-    padding: 1rem;
+    padding: 0.75rem;
+    overflow: hidden;
   }
 
   .quadrant-label {
-    font-size: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
   }
 
-  .cross-vertical,
-  .cross-horizontal {
+  .cross-vertical {
     width: 2px;
+  }
+
+  .cross-horizontal {
     height: 2px;
   }
 
   .cross-center {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 
   .info-panel {
@@ -296,12 +371,25 @@
 
 /* Mobile */
 @media (max-width: 480px) {
+  .app, .os-container {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
   .quadrant {
-    padding: 0.75rem;
+    padding: 0.5rem;
+    overflow: hidden;
   }
 
   .quadrant-label {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.6rem;
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .quadrant-content {
+    overflow: hidden;
   }
 
   .cross-vertical {
@@ -313,8 +401,8 @@
   }
 
   .cross-center {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 
   .info-panel {
@@ -325,25 +413,85 @@
   }
 
   .back-button {
-    top: 0.5rem;
-    left: 0.5rem;
     font-size: 0.7rem;
     padding: 0.35rem 0.6rem;
+  }
+
+  /* Position back button beneath quadrant labels when expanded (mobile) */
+  .expanded-ul .back-button {
+    top: 2rem;
+    left: 0.35rem;
+  }
+
+  .expanded-ur .back-button {
+    top: 2rem;
+    left: auto;
+    right: 0.35rem;
+  }
+
+  .expanded-ll .back-button {
+    top: auto;
+    bottom: 2rem;
+    left: 0.35rem;
+  }
+
+  .expanded-lr .back-button {
+    top: auto;
+    bottom: 2rem;
+    left: auto;
+    right: 0.35rem;
+  }
+
+  /* Expanded quadrant fills screen */
+  .os-container.expanded .quadrant {
+    padding: 0.5rem;
+    width: 100vw;
+    height: 100dvh;
   }
 }
 
 /* Very small screens */
 @media (max-width: 360px) {
   .quadrant {
-    padding: 0.5rem;
+    padding: 0.35rem;
   }
 
   .quadrant-label {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.5rem;
   }
 
   .cross-center {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app, .os-container {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .quadrant {
+    padding: 0.35rem;
+  }
+
+  .quadrant-label {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .cross-center {
+    width: 14px;
+    height: 14px;
+  }
+
+  .back-button {
+    top: 0.25rem;
+    left: 0.25rem;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
   }
 }

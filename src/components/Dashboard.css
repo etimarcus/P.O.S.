@@ -608,3 +608,548 @@
     padding: 6px 8px;
   }
 }
+
+/* ═══════════════════════════════════════════
+   ECONOMICS TAB STYLES
+═══════════════════════════════════════════ */
+
+:root {
+  --cognitio: #818cf8;
+  --voluntas: #fbbf24;
+  --sympathia: #34d399;
+  --labor: #f87171;
+  --gold-dim: #92702a;
+  --emerald: #34d399;
+  --violet: #a78bfa;
+  --rose: #fb7185;
+}
+
+.eco-content {
+  width: 100%;
+  max-width: 1000px;
+  color: var(--text-light, #e8e4d9);
+}
+
+.eco-loading,
+.eco-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  color: var(--text-muted, #888);
+  font-size: 1.2rem;
+}
+
+/* Header */
+.eco-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.eco-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+  margin-bottom: 0.5rem;
+}
+
+.eco-subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Sections */
+.eco-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.eco-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--accent-gold, #c9a227);
+}
+
+.eco-section h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.eco-desc {
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* Treasury Section */
+.treasury-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.treasury-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.treasury-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.treasury-item .label {
+  color: var(--text-muted, #888);
+  text-transform: capitalize;
+}
+
+.treasury-item.income .value {
+  color: var(--emerald);
+}
+
+.treasury-arrow {
+  color: var(--accent-gold, #c9a227);
+  font-size: 1.5rem;
+}
+
+.treasury-total,
+.treasury-reserve,
+.treasury-surplus {
+  text-align: center;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.treasury-total .label,
+.treasury-reserve .label,
+.treasury-surplus .label {
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.treasury-total .value,
+.treasury-reserve .value,
+.treasury-surplus .value {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem;
+  margin-top: 0.25rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.treasury-reserve .value.negative {
+  color: var(--rose);
+}
+
+.treasury-surplus .value.highlight {
+  color: var(--accent-gold, #c9a227);
+  font-weight: 600;
+}
+
+/* Weights Section */
+.weights-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.weight-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.weight-label {
+  width: 80px;
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+}
+
+.weight-track {
+  flex: 1;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.weight-fill {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.5s ease;
+}
+
+.weight-value {
+  width: 60px;
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.weights-insight {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+  font-style: italic;
+}
+
+/* Profile Section */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-actio,
+.profile-devotio {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.profile-minutes {
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+  margin-bottom: 1rem;
+}
+
+.actio-bars,
+.devotio-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.actio-bar,
+.devotio-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.actio-label {
+  width: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.devotio-label {
+  width: 70px;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+}
+
+.actio-track,
+.devotio-track {
+  flex: 1;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.actio-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+.devotio-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--rose));
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+.actio-value {
+  width: 40px;
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+}
+
+.profile-devotio > .devotio-value {
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.devotio-bars .devotio-value {
+  width: 30px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+}
+
+/* Exchange Rate Section */
+.exchange-formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.formula-part {
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.formula-op {
+  color: var(--text-muted, #888);
+}
+
+.formula-result {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-gold, #c9a227);
+  padding: 0.25rem 0.75rem;
+  background: rgba(201, 162, 39, 0.15);
+  border-radius: 6px;
+}
+
+.exchange-insight {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+}
+
+/* Actions Section in Economics */
+.eco-actions .actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .eco-actions .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.action-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.25rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.action-card.highlight {
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid var(--accent-gold, #c9a227);
+}
+
+.card-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+  color: var(--text-light, #e8e4d9);
+}
+
+.card-value.redeemed {
+  color: var(--rose);
+}
+
+.card-value.accumulated {
+  color: var(--emerald);
+}
+
+.card-value.ruban {
+  color: var(--accent-gold, #c9a227);
+}
+
+.card-formula {
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  margin-top: 0.5rem;
+  font-family: 'Space Mono', monospace;
+}
+
+.card-note {
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  margin-top: 0.25rem;
+}
+
+/* Redeem Section */
+.redeem-section {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.redeem-desc {
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.redeem-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.redeem-form input {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: var(--text-light, #e8e4d9);
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+}
+
+.redeem-form input:focus {
+  outline: none;
+  border-color: var(--accent-gold, #c9a227);
+}
+
+.redeem-form .available {
+  font-size: 0.85rem;
+  color: var(--text-muted, #888);
+}
+
+.redeem-btn {
+  padding: 0.75rem 2rem;
+  background: var(--accent-gold, #c9a227);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.redeem-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+}
+
+.redeem-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Cycle Section */
+.cycle-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+}
+
+.cycle-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  min-width: 70px;
+}
+
+.cycle-step.active {
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid var(--accent-gold, #c9a227);
+}
+
+.step-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+}
+
+.cycle-step.active .step-num {
+  color: var(--accent-gold, #c9a227);
+}
+
+.step-text {
+  font-size: 0.85rem;
+  color: var(--text-light, #e8e4d9);
+}
+
+.cycle-arrow {
+  color: var(--accent-gold, #c9a227);
+  font-size: 1.2rem;
+}
+
+/* Footer */
+.eco-footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted, #888);
+  font-style: italic;
+}
+
+.eco-footer p {
+  margin-bottom: 0.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+}
+
+.eco-footer span {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--gold-dim);
+}

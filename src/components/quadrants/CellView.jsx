@@ -71,40 +71,40 @@ export function CellView({ onNavigate }) {
     return () => resizeObserver.disconnect()
   }, [])
   
-  // === STATE VALUES (inputs) ===
-  const numGuilds = sim.state?.numGuilds ?? 8
-  const guildSpacing = sim.state?.guildSpacing ?? 200          // distance from center to guild ring
-  const innerAreaHa = sim.state?.innerAreaHa ?? 50            // area inside bamboo ring
+  // === STATE VALUES (inputs) - defaults from Rubania defaults.js ===
+  const numGuilds = sim.state?.numGuilds ?? 10
+  const guildSpacing = sim.state?.guildSpacing ?? 700          // distance from center to guild ring
+  const innerAreaHa = sim.state?.innerAreaHa ?? 600            // area inside bamboo ring
   const numCompounds = sim.state?.numCompounds ?? 8
-  const greenhouseLength = sim.state?.greenhouseLength ?? 30
-  const greenhouseWidth = sim.state?.greenhouseWidth ?? 15
+  const greenhouseLength = sim.state?.greenhouseLength ?? 22
+  const greenhouseWidth = sim.state?.greenhouseWidth ?? 18
   const greenhouseMaxDim = Math.max(greenhouseLength, greenhouseWidth)
-  const compoundSpacing = sim.state?.compoundSpacing ?? 30
+  const compoundSpacing = sim.state?.compoundSpacing ?? 25
   const polygonSides = sim.state?.polygonSides ?? 6
-  const domeDiameter = sim.state?.domeDiameter ?? 8
-  
+  const domeDiameter = sim.state?.domeDiameter ?? 6
+
   // School - building radius + water ring around it
-  const schoolPolygonSides = sim.state?.schoolPolygonSides ?? 8
-  const schoolBuildingRadius = sim.state?.schoolBuildingRadius ?? 25
-  const schoolWaterDistance = sim.state?.schoolWaterDistance ?? 25  // distance from building edge to water
-  const schoolWaterRingWidth = sim.state?.schoolWaterRingWidth ?? 8
+  const schoolPolygonSides = sim.state?.schoolPolygonSides ?? 6
+  const schoolBuildingRadius = sim.state?.schoolBuildingRadius ?? 30
+  const schoolWaterDistance = sim.state?.schoolWaterDistance ?? 20  // distance from building edge to water
+  const schoolWaterRingWidth = sim.state?.schoolWaterRingWidth ?? 5
   // Water ring is at distance from building edge, not from center
   const schoolWaterInnerRadius = schoolBuildingRadius + schoolWaterDistance
   const schoolWaterOuterRadius = schoolWaterInnerRadius + schoolWaterRingWidth
-  
+
   // Water
-  const perimeterCanalWidth = sim.state?.perimeterCanalWidth ?? 15
-  const guildCanalWidth = sim.state?.guildCanalWidth ?? 5
-  const interGuildCanalWidth = sim.state?.interGuildCanalWidth ?? 4
+  const perimeterCanalWidth = sim.state?.perimeterCanalWidth ?? 30
+  const guildCanalWidth = sim.state?.guildCanalWidth ?? 2
+  const interGuildCanalWidth = sim.state?.interGuildCanalWidth ?? 2
 
   // Guild moat (aquaculture ring around each guild)
-  const guildMoatOffset = sim.state?.guildMoatOffset ?? 10
-  const guildMoatWidth = sim.state?.guildMoatWidth ?? 4
+  const guildMoatOffset = sim.state?.guildMoatOffset ?? 5
+  const guildMoatWidth = sim.state?.guildMoatWidth ?? 3
 
   // Grazing rotation
   const showGrazingCells = sim.state?.showGrazingCells ?? true
   const occupationDays = sim.state?.occupationDays ?? 2
-  const recoveryDays = sim.state?.recoveryDays ?? 45
+  const recoveryDays = sim.state?.recoveryDays ?? 30
   const numGrazingPaddocks = sim.systems?.grazing?.numGrazingPaddocks ?? 24
   const areaPerPaddockHa = sim.systems?.grazing?.areaPerPaddockHa ?? 1
 
@@ -122,22 +122,22 @@ export function CellView({ onNavigate }) {
   const totalSilvopastureTrees = blackLocustTrees + oakAshTrees + walnutTrees
 
   // Paths
-  const bambooPathWidth = sim.state?.bambooPathWidth ?? 4
-  const canalPathWidth = sim.state?.canalPathWidth ?? 3
-  const bambooOuterPathWidth = sim.state?.bambooOuterPathWidth ?? 3
-  const radialPathWidth = sim.state?.radialPathWidth ?? 2
+  const bambooPathWidth = sim.state?.bambooPathWidth ?? 5.5
+  const canalPathWidth = sim.state?.canalPathWidth ?? 6
+  const bambooOuterPathWidth = sim.state?.bambooOuterPathWidth ?? 6
+  const radialPathWidth = sim.state?.radialPathWidth ?? 6
 
   // Urban sector (CBD at edge)
   const showUrbanSector = sim.state?.showUrbanSector ?? true
-  const urbanSectorAngle = sim.state?.urbanSectorAngle ?? 33  // degrees - inner wedge (to canal)
-  const urbanSectorAngleOuter = sim.state?.urbanSectorAngleOuter ?? 33  // degrees - outer wedge (bamboo zone)
-  const urbanPondInnerDiameter = sim.state?.urbanPondInnerDiameter ?? 20
+  const urbanSectorAngle = sim.state?.urbanSectorAngle ?? 25  // degrees - inner wedge (to canal)
+  const urbanSectorAngleOuter = sim.state?.urbanSectorAngleOuter ?? 50  // degrees - outer wedge (bamboo zone)
+  const urbanPondInnerDiameter = sim.state?.urbanPondInnerDiameter ?? 100
   const urbanPondInnerDepth = sim.state?.urbanPondInnerDepth ?? 3
-  const urbanPondOuterDiameter = sim.state?.urbanPondOuterDiameter ?? 15
-  const urbanPondOuterDepth = sim.state?.urbanPondOuterDepth ?? 2.5
+  const urbanPondOuterDiameter = sim.state?.urbanPondOuterDiameter ?? 100
+  const urbanPondOuterDepth = sim.state?.urbanPondOuterDepth ?? 3
   const urbanStreets = sim.state?.urbanStreets ?? 3
-  const urbanStreetsOuter = sim.state?.urbanStreetsOuter ?? 2
-  const urbanCrossStreetsInner = sim.state?.urbanCrossStreetsInner ?? 2
+  const urbanStreetsOuter = sim.state?.urbanStreetsOuter ?? 9
+  const urbanCrossStreetsInner = sim.state?.urbanCrossStreetsInner ?? 5
   const urbanCrossStreetsOuter = sim.state?.urbanCrossStreetsOuter ?? 3
   const urbanStreetWidth = sim.state?.urbanStreetWidth ?? 4
   const centralCanalWidth = sim.state?.centralCanalWidth ?? 6

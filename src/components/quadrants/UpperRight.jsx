@@ -21,44 +21,25 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../../supabaseClient'
 import './UpperRight.css'
 
-// Ministry colors for selection
-const MINISTRIES = [
-  { name: 'Ministerio de Salud', color: '#4CAF50' },
-  { name: 'Ministerio de Educación', color: '#2196F3' },
-  { name: 'Ministerio de Cultura', color: '#9C27B0' },
-  { name: 'Ministerio de Economía', color: '#FF9800' },
-  { name: 'Ministerio de Ambiente', color: '#8BC34A' },
-  { name: 'Ministerio de Tecnología', color: '#00BCD4' },
-  { name: 'Ministerio de Bienestar', color: '#E91E63' },
-  { name: 'Sin Ministerio', color: '#9E9E9E' }
-]
-
-// Size mapping based on child count
-const getSizeFromChildCount = (childCount) => {
-  if (childCount >= 8) return 'xl'
-  if (childCount >= 5) return 'lg'
-  if (childCount >= 3) return 'md'
-  if (childCount >= 1) return 'sm'
-  return 'xs'
-}
+// Default ministry (fallback) - will be populated dynamically from tier 1 words
+const DEFAULT_MINISTRY = { name: 'Uncategorized', color: '#9E9E9E' }
 
 // Calculate positions ensuring no overlap, clustered around center
 const calculateWordPositions = (words) => {
   const placed = []
 
   const getWordDims = (word) => {
-    const charWidth = { xl: 3.5, lg: 2.8, md: 2.2, sm: 1.8, xs: 1.4 }
-    const heights = { xl: 10, lg: 8, md: 7, sm: 6, xs: 5 }
-    const cw = charWidth[word.size] || 1.8
+    const charWidth = 2.6
+    const height = 6
     const textLen = word.text?.length || 5
     return {
-      w: Math.max(textLen * cw, 8),
-      h: heights[word.size] || 6
+      w: Math.max(textLen * charWidth, 8),
+      h: height
     }
   }
 
   const overlaps = (pos1, pos2) => {
-    const pad = 2
+    const pad = 2.5
     return !(pos1.x + pos1.w/2 + pad < pos2.x - pos2.w/2 ||
              pos1.x - pos1.w/2 > pos2.x + pos2.w/2 + pad ||
              pos1.y + pos1.h/2 + pad < pos2.y - pos2.h/2 ||
@@ -74,8 +55,8 @@ const calculateWordPositions = (words) => {
 
   const findPosition = (word) => {
     const dims = getWordDims(word)
-    const centerX = 50
-    const centerY = 50
+    const centerX = 45
+    const centerY = 45
     const a = 0
     const b = 1.5
 
@@ -108,12 +89,8 @@ const calculateWordPositions = (words) => {
     return { id: word.id, x: 50, y: 50 }
   }
 
-  const sorted = [...words].sort((a, b) => {
-    const order = { xl: 0, lg: 1, md: 2, sm: 3, xs: 4 }
-    return (order[a.size] || 4) - (order[b.size] || 4)
-  })
-
-  return sorted.map(word => findPosition(word))
+  // Place words in order (no size-based sorting needed)
+  return words.map(word => findPosition(word))
 }
 
 export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
@@ -132,7 +109,8 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   const [addWordParent, setAddWordParent] = useState(null) // For creating child of specific word
   const [editWordBubble, setEditWordBubble] = useState(null)
   const [newWordName, setNewWordName] = useState('')
-  const [newWordMinistry, setNewWordMinistry] = useState(MINISTRIES[MINISTRIES.length - 1])
+  const [newWordMinistry, setNewWordMinistry] = useState(DEFAULT_MINISTRY)
+  const [ministries, setMinistries] = useState([DEFAULT_MINISTRY])
   const [activatedWord, setActivatedWord] = useState(null)
   const [saving, setSaving] = useState(false)
   const [mouseButtons, setMouseButtons] = useState(0)
@@ -175,27 +153,28 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
             map[parentId].children.push({
               id: String(word.id),
               text: word.word,
-              size: 'md',
               color: word.ministry_color
             })
           }
         }
       })
 
-      Object.values(map).forEach(word => {
-        word.children.forEach(child => {
-          child.size = getSizeFromChildCount(map[child.id]?.children?.length || 0)
-        })
-      })
-
       const rootWords = data.filter(word => word.tier === 1)
+
+      // Build ministries from tier 1 words
+      const ministriesFromWords = rootWords.map(word => ({
+        name: word.word,
+        color: word.ministry_color || '#9E9E9E'
+      }))
+      // Add default "Uncategorized" at the end
+      ministriesFromWords.push(DEFAULT_MINISTRY)
+      setMinistries(ministriesFromWords)
 
       map['root'] = {
         label: 'topics',
         children: rootWords.map(word => ({
           id: String(word.id),
           text: word.word,
-          size: getSizeFromChildCount(map[String(word.id)]?.children?.length || 0),
           color: word.ministry_color
         }))
       }
@@ -324,7 +303,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     // Shift + click: activate word for connection
     if (e.shiftKey) {
       setActivatedWord(prev => prev?.id === topic.id ? null : { id: topic.id, text: topic.text })
-      onShowInfo?.(activatedWord?.id === topic.id ? 'Palabra desactivada' : `Palabra activada: ${topic.text}`)
+      onShowInfo?.(activatedWord?.id === topic.id ? 'Word deactivated' : `Word activated: ${topic.text}`)
       return
     }
 
@@ -379,7 +358,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
         setDefinitionBubble({
           word: topic.text,
           wordId: topic.id,
-          definition: wordData?.description || `Tema relacionado con ${wordData?.ministry_name || 'este proyecto'}`,
+          definition: wordData?.description || `Topic related to ${wordData?.ministry_name || 'this project'}`,
           ministry: wordData?.ministry_name,
           searchUrl: `https://www.google.com/search?q=${encodeURIComponent(topic.text)}`,
           issues
@@ -400,7 +379,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       // Open edit bubble for this word
       const wordData = wordsMap[topic.id]
-      const ministry = MINISTRIES.find(m => m.name === wordData?.ministry_name) || MINISTRIES[MINISTRIES.length - 1]
+      const ministry = ministries.find(m => m.name === wordData?.ministry_name) || ministries[ministries.length - 1] || DEFAULT_MINISTRY
 
       setEditWordBubble({
         id: topic.id,
@@ -423,19 +402,19 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       return
     }
 
-    // Shift + right click: connect to activated word
+    // Shift + right click: make activated word a child of clicked word
     if (e.shiftKey && activatedWord && activatedWord.id !== topic.id) {
       setSaving(true)
       try {
-        // Update the clicked word's parent_id to the activated word's id
+        // Update the activated word's parent_id to the clicked word's id
         const { error } = await supabase
           .from('word_cloud')
-          .update({ parent_id: parseInt(activatedWord.id) })
-          .eq('id', parseInt(topic.id))
+          .update({ parent_id: parseInt(topic.id) })
+          .eq('id', parseInt(activatedWord.id))
 
         if (error) throw error
 
-        onShowInfo?.(`"${topic.text}" conectado como hijo de "${activatedWord.text}"`)
+        onShowInfo?.(`"${activatedWord.text}" moved into "${topic.text}"`)
         setActivatedWord(null)
         await fetchWords()
       } catch (err) {
@@ -470,7 +449,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       const y = ((e.clientY - rect.top) / rect.height) * 100
       setAddWordBubble({ x, y })
       setNewWordName('')
-      setNewWordMinistry(MINISTRIES[MINISTRIES.length - 1])
+      setNewWordMinistry(ministries[ministries.length - 1] || DEFAULT_MINISTRY)
       setTimeout(() => inputRef.current?.focus(), 100)
     }
   }, [])
@@ -506,7 +485,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       if (error) throw error
 
-      onShowInfo?.(`Palabra "${newWordName}" agregada`)
+      onShowInfo?.(`Word "${newWordName}" added`)
       setAddWordBubble(null)
       setAddWordParent(null)
       setNewWordName('')
@@ -535,7 +514,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       if (error) throw error
 
-      onShowInfo?.(`Palabra actualizada`)
+      onShowInfo?.(`Word updated`)
       setEditWordBubble(null)
       setNewWordName('')
       await fetchWords()
@@ -550,7 +529,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   const handleDeleteWord = useCallback(async () => {
     if (!editWordBubble) return
 
-    if (!confirm(`¿Eliminar "${editWordBubble.originalText}"?`)) return
+    if (!confirm(`Delete "${editWordBubble.originalText}"?`)) return
 
     setSaving(true)
     try {
@@ -561,7 +540,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
       if (error) throw error
 
-      onShowInfo?.(`Palabra eliminada`)
+      onShowInfo?.(`Word deleted`)
       setEditWordBubble(null)
       setNewWordName('')
       await fetchWords()
@@ -673,7 +652,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       // Prevent multiple rapid navigations
       if (isNavigatingRef.current) return
 
-      const delta = e.deltaY > 0 ? -0.1 : 0.1
+      const delta = e.deltaY > 0 ? -0.15 : 0.15
       const zoomIn = delta > 0
 
       // Get mouse position relative to wrapper (untransformed container)
@@ -689,7 +668,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       let newZoom = Math.min(Math.max(currentZoom + delta, 0.5), 3)
 
       // Zoom out past threshold - navigate back to parent
-      if (!zoomIn && currentZoom <= 0.6 && path.length > 1) {
+      if (!zoomIn && currentZoom <= 0.7 && path.length > 1) {
         isNavigatingRef.current = true
         navigateBack()
         setTimeout(() => {
@@ -699,7 +678,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       }
 
       // Zoom in past threshold while hovering over a word with children - navigate into it
-      if (zoomIn && currentZoom >= 1.8 && hoveredWord) {
+      if (zoomIn && currentZoom >= 1.5 && hoveredWord) {
         const hasChildren = wordsMap[hoveredWord.id]?.children?.length > 0
         if (hasChildren) {
           isNavigatingRef.current = true
@@ -730,11 +709,25 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        setDefinitionBubble(null)
-        setAddWordBubble(null)
-        setAddWordParent(null)
-        setEditWordBubble(null)
-        setActivatedWord(null)
+        // First priority: close any open dialogs/bubbles
+        if (definitionBubble || addWordBubble || editWordBubble || activatedWord) {
+          setDefinitionBubble(null)
+          setAddWordBubble(null)
+          setAddWordParent(null)
+          setEditWordBubble(null)
+          setActivatedWord(null)
+        }
+        // Second priority: go back to root (tier 1)
+        else if (path.length > 1) {
+          setIsTransitioning(true)
+          setTimeout(() => {
+            setPath(['root'])
+            setForwardHistory([])
+            setIsTransitioning(false)
+            setPan({ x: 0, y: 0 })
+            setZoom(1)
+          }, 150)
+        }
       }
       if (e.key === 'Enter' && addWordBubble) {
         handleSaveNewWord()
@@ -746,7 +739,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [addWordBubble, editWordBubble, handleSaveNewWord, handleSaveEditWord])
+  }, [addWordBubble, editWordBubble, definitionBubble, activatedWord, path, handleSaveNewWord, handleSaveEditWord])
 
   // Reset view when navigating
   useEffect(() => {
@@ -763,7 +756,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       <div className="quadrant quadrant-ur">
         <span className="quadrant-label" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>IT</span>
         <div className="quadrant-content">
-          <div className="loading">Cargando...</div>
+          <div className="loading">Loading...</div>
         </div>
       </div>
     )
@@ -787,23 +780,48 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
       <div className="quadrant-content">
         {path.length > 1 && (
           <div className="breadcrumb">
-            {breadcrumbLabels.slice(1).map((label, i) => (
-              <span key={i + 1}>
-                {i > 0 && <span className="breadcrumb-separator"> / </span>}
-                <span
-                  className={`breadcrumb-item ${i + 1 === breadcrumbLabels.length - 1 ? 'active' : ''}`}
-                  onClick={(e) => handleBreadcrumbClick(e, i + 1)}
-                >
-                  {label}
+            <span className="breadcrumb-back" onClick={(e) => { e.stopPropagation(); navigateBack(); }} title="Go back one level">
+              «
+            </span>
+            {breadcrumbLabels.slice(1).map((label, i) => {
+              const isActive = i + 1 === breadcrumbLabels.length - 1
+              const nodeId = path[i + 1]
+              return (
+                <span key={i + 1}>
+                  {i > 0 && <span className="breadcrumb-separator"> / </span>}
+                  <span
+                    className={`breadcrumb-item ${isActive ? 'active editable' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isActive && nodeId !== 'root') {
+                        // Click on active breadcrumb opens edit dialog
+                        const wordData = wordsMap[nodeId]
+                        const ministry = ministries.find(m => m.name === wordData?.ministry_name) || ministries[ministries.length - 1] || DEFAULT_MINISTRY
+                        setEditWordBubble({
+                          id: nodeId,
+                          originalText: label
+                        })
+                        setNewWordName(label)
+                        setNewWordMinistry(ministry)
+                        setTimeout(() => inputRef.current?.focus(), 100)
+                      } else {
+                        handleBreadcrumbClick(e, i + 1)
+                      }
+                    }}
+                    title={isActive ? 'Click to edit' : 'Click to navigate'}
+                  >
+                    {label}
+                    {isActive && <span className="edit-hint">✎</span>}
+                  </span>
                 </span>
-              </span>
-            ))}
+              )
+            })}
           </div>
         )}
 
         {activatedWord && (
           <div className="activated-word-indicator">
-            Conectando a: <strong>{activatedWord.text}</strong>
+            Connecting to: <strong>{activatedWord.text}</strong>
             <button onClick={() => setActivatedWord(null)}>×</button>
           </div>
         )}
@@ -830,7 +848,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
               return (
                 <span
                   key={topic.id}
-                  className={`word-item word-${topic.size} ${hasChildren ? 'has-children' : ''} ${isActivated ? 'activated' : ''} ${isHovered ? 'hovered' : ''}`}
+                  className={`word-item ${hasChildren ? 'has-children' : ''} ${isActivated ? 'activated' : ''} ${isHovered ? 'hovered' : ''}`}
                   onClick={(e) => handleWordClick(e, topic)}
                   onMouseDown={(e) => handleWordMouseDown(e, topic)}
                   onContextMenu={(e) => handleWordContextMenu(e, topic)}
@@ -865,11 +883,29 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
             setAddWordParent({ id: definitionBubble.wordId, text: definitionBubble.word })
             setAddWordBubble({ x: 50, y: 50 })
             setNewWordName('')
-            setNewWordMinistry(MINISTRIES[MINISTRIES.length - 1])
+            setNewWordMinistry(ministries[ministries.length - 1] || DEFAULT_MINISTRY)
             setDefinitionBubble(null)
             setTimeout(() => inputRef.current?.focus(), 100)
           }}>
             <button className="bubble-close" onClick={() => setDefinitionBubble(null)}>×</button>
+            <button
+              className="bubble-edit"
+              onClick={() => {
+                const wordData = wordsMap[definitionBubble.wordId]
+                const ministry = ministries.find(m => m.name === wordData?.ministry_name) || ministries[ministries.length - 1] || DEFAULT_MINISTRY
+                setEditWordBubble({
+                  id: definitionBubble.wordId,
+                  originalText: definitionBubble.word
+                })
+                setNewWordName(definitionBubble.word)
+                setNewWordMinistry(ministry)
+                setDefinitionBubble(null)
+                setTimeout(() => inputRef.current?.focus(), 100)
+              }}
+              title="Edit word"
+            >
+              ✎
+            </button>
 
             <div className="bubble-main">
               {definitionBubble.image && (
@@ -880,7 +916,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
               <h3>{definitionBubble.word}</h3>
               {definitionBubble.ministry && <span className="bubble-ministry">{definitionBubble.ministry}</span>}
               {definitionBubble.loading ? (
-                <p className="bubble-loading">Buscando definición...</p>
+                <p className="bubble-loading">Searching definition...</p>
               ) : (
                 <>
                   <p className="bubble-definition">{definitionBubble.definition}</p>
@@ -892,7 +928,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
                     )}
                     {definitionBubble.searchUrl && (
                       <a href={definitionBubble.searchUrl} target="_blank" rel="noopener noreferrer" className="bubble-link">
-                        Buscar más →
+                        Search more →
                       </a>
                     )}
                   </div>
@@ -905,7 +941,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
               <div className="bubble-issues">
                 <div className="issues-header">
                   <span className="issues-icon">⚡</span>
-                  <span className="issues-title">Conflictos Asociados</span>
+                  <span className="issues-title">Related Issues</span>
                 </div>
                 <div className="issues-list">
                   {definitionBubble.issues.map((issue) => (
@@ -915,7 +951,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
                       onClick={(e) => {
                         e.stopPropagation()
                         // TODO: Navigate to crowd reasoning module
-                        onShowInfo?.(`Abriendo deliberación: ${issue.title}`)
+                        onShowInfo?.(`Opening deliberation: ${issue.title}`)
                         onNavigate?.('crowdreasoning', { issueId: issue.id })
                       }}
                     >
@@ -924,10 +960,10 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
                         <span className="issue-title">{issue.title}</span>
                         <span className="issue-description">{issue.description}</span>
                         <span className="issue-status-label">
-                          {issue.status === 'open' && 'Abierto'}
-                          {issue.status === 'deliberating' && 'En deliberación'}
-                          {issue.status === 'ready_to_vote' && 'Listo para votar'}
-                          {issue.status === 'voting' && 'En votación'}
+                          {issue.status === 'open' && 'Open'}
+                          {issue.status === 'deliberating' && 'Deliberating'}
+                          {issue.status === 'ready_to_vote' && 'Ready to vote'}
+                          {issue.status === 'voting' && 'Voting'}
                         </span>
                       </div>
                       <span className="issue-arrow">→</span>
@@ -935,7 +971,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
                   ))}
                 </div>
                 <p className="issues-note">
-                  Click en un conflicto para abrir el mapa de argumentos
+                  Click an issue to open the argument map
                 </p>
               </div>
             )}
@@ -948,30 +984,30 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
         <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setAddWordBubble(null); }} onContextMenu={(e) => e.preventDefault()}>
           <div className="bubble-content add-word-bubble" onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.stopPropagation()}>
             <button className="bubble-close" onClick={() => { setAddWordBubble(null); setAddWordParent(null); }}>×</button>
-            <h3>Nueva Palabra</h3>
+            <h3>New Word</h3>
             <p className="bubble-subtitle">
               {addWordParent
-                ? `hijo de "${addWordParent.text}"`
+                ? `child of "${addWordParent.text}"`
                 : `en "${wordsMap[currentNodeId]?.label || 'topics'}"`
               }
             </p>
 
             <div className="form-group">
-              <label>Nombre</label>
+              <label>Name</label>
               <input
                 ref={inputRef}
                 type="text"
                 value={newWordName}
                 onChange={(e) => setNewWordName(e.target.value)}
-                placeholder="Escribe el nombre..."
+                placeholder="Enter name..."
                 disabled={saving}
               />
             </div>
 
             <div className="form-group">
-              <label>Ministerio</label>
+              <label>Category</label>
               <div className="ministry-selector">
-                {MINISTRIES.map((ministry) => (
+                {ministries.map((ministry) => (
                   <button
                     key={ministry.name}
                     className={`ministry-option ${newWordMinistry.name === ministry.name ? 'selected' : ''}`}
@@ -980,7 +1016,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
                     disabled={saving}
                   >
                     <span className="ministry-dot" />
-                    {ministry.name.replace('Ministerio de ', '')}
+                    {ministry.name}
                   </button>
                 ))}
               </div>
@@ -988,10 +1024,10 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
             <div className="form-actions">
               <button className="btn-cancel" onClick={() => { setAddWordBubble(null); setAddWordParent(null); }} disabled={saving}>
-                Cancelar
+                Cancel
               </button>
               <button className="btn-save" onClick={handleSaveNewWord} disabled={saving || !newWordName.trim()}>
-                {saving ? 'Guardando...' : 'Guardar'}
+                {saving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>
@@ -1003,25 +1039,25 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
         <div className="definition-bubble" onClick={(e) => { e.stopPropagation(); setEditWordBubble(null); }} onContextMenu={(e) => e.preventDefault()}>
           <div className="bubble-content add-word-bubble" onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.stopPropagation()}>
             <button className="bubble-close" onClick={() => setEditWordBubble(null)}>×</button>
-            <h3>Editar Palabra</h3>
+            <h3>Edit Word</h3>
             <p className="bubble-subtitle">"{editWordBubble.originalText}"</p>
 
             <div className="form-group">
-              <label>Nombre</label>
+              <label>Name</label>
               <input
                 ref={inputRef}
                 type="text"
                 value={newWordName}
                 onChange={(e) => setNewWordName(e.target.value)}
-                placeholder="Escribe el nombre..."
+                placeholder="Enter name..."
                 disabled={saving}
               />
             </div>
 
             <div className="form-group">
-              <label>Ministerio</label>
+              <label>Category</label>
               <div className="ministry-selector">
-                {MINISTRIES.map((ministry) => (
+                {ministries.map((ministry) => (
                   <button
                     key={ministry.name}
                     className={`ministry-option ${newWordMinistry.name === ministry.name ? 'selected' : ''}`}
@@ -1030,7 +1066,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
                     disabled={saving}
                   >
                     <span className="ministry-dot" />
-                    {ministry.name.replace('Ministerio de ', '')}
+                    {ministry.name}
                   </button>
                 ))}
               </div>
@@ -1038,13 +1074,13 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
 
             <div className="form-actions">
               <button className="btn-delete" onClick={handleDeleteWord} disabled={saving}>
-                Eliminar
+                Delete
               </button>
               <button className="btn-cancel" onClick={() => setEditWordBubble(null)} disabled={saving}>
-                Cancelar
+                Cancel
               </button>
               <button className="btn-save" onClick={handleSaveEditWord} disabled={saving || !newWordName.trim()}>
-                {saving ? 'Guardando...' : 'Guardar'}
+                {saving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

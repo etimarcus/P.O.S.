@@ -68,7 +68,7 @@ export function LowerRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     e.preventDefault()
 
     wheelAccumulator.current += e.deltaY
-    const threshold = 50
+    const threshold = 25
 
     if (wheelAccumulator.current > threshold) {
       wheelAccumulator.current = 0

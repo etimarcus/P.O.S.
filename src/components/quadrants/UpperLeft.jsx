@@ -492,7 +492,7 @@ export function UpperLeft({ onNavigate, onShowInfo, onExpand, expanded, userId, 
     wheelAccumulator.current += e.deltaY
 
     // Threshold for layer change
-    const threshold = 50
+    const threshold = 25
 
     if (wheelAccumulator.current > threshold) {
       // Scroll down = go to outer layer (lower index)

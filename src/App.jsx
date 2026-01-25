@@ -5,8 +5,8 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { UpperLeft, UpperRight, LowerLeft, LowerRight } from './components/quadrants'
-import { Dashboard } from './components/Dashboard'
 import { Auth } from './components/Auth'
+import { Dashboard } from './components/Dashboard'
 import { useAuth } from './context/AuthContext'
 import './App.css'
 
@@ -111,7 +111,7 @@ function App() {
     }[expandedQuadrant]
 
     return (
-      <div className="app expanded">
+      <div className={`app expanded expanded-${expandedQuadrant}`}>
         <button className="back-button" onClick={handleCollapse}>
           ← Back
         </button>

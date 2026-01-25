@@ -11,100 +11,423 @@ import './Dashboard.css'
 
 // Tab configuration
 const TABS = [
-  { id: 'actions', label: 'Actions', icon: '⚡' },
+  { id: 'economics', label: 'Economics', icon: '📊' },
   { id: 'wallet', label: 'Wallet', icon: '💰' },
-  { id: 'finances', label: 'Finances', icon: '📊' },
   { id: 'calendar', label: 'Calendar', icon: '📅' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ]
 
-// Mock financial data
-const TREASURY_DATA = [
-  { currency: 'USD', amount: 85000, usdValue: 85000 },
-  { currency: 'EUR', amount: 62000, usdValue: 66960 },
-  { currency: 'BTC', amount: 1.5, usdValue: 90000 },
-  { currency: 'USDT', amount: 5040, usdValue: 5040 },
-]
+// Helper Components for Economics tab
+const WeightBar = ({ label, value, color }) => (
+  <div className="weight-bar">
+    <div className="weight-label">{label}</div>
+    <div className="weight-track">
+      <div
+        className="weight-fill"
+        style={{ width: `${value * 100 * 2}%`, background: color }}
+      />
+    </div>
+    <div className="weight-value">{(value * 100).toFixed(1)}%</div>
+  </div>
+)
 
-const EXPENSES_DATA = [
-  { category: 'Infrastructure', amount: 18000 },
-  { category: 'Stipends & Compensation', amount: 15000 },
-  { category: 'Materials & Supplies', amount: 9000 },
-  { category: 'Energy & Utilities', amount: 7000 },
-  { category: 'Maintenance', amount: 5000 },
-  { category: 'Administration', amount: 3000 },
-]
+const ActioBar = ({ label, value, color }) => (
+  <div className="actio-bar">
+    <div className="actio-label">{label}</div>
+    <div className="actio-track">
+      <div
+        className="actio-fill"
+        style={{ width: `${value * 100}%`, background: color }}
+      />
+    </div>
+    <div className="actio-value">{(value * 100).toFixed(0)}%</div>
+  </div>
+)
 
-const REVENUE_DATA = [
-  { source: 'Agricultural Products', amount: 52000 },
-  { source: 'Workshops & Crafts', amount: 35000 },
-  { source: 'Earth School Programs', amount: 28000 },
-  { source: 'Hospitality & Tourism', amount: 22000 },
-  { source: 'Consulting Services', amount: 15000 },
-]
+const DevotioBar = ({ label, value }) => (
+  <div className="devotio-bar">
+    <div className="devotio-label">{label}</div>
+    <div className="devotio-track">
+      <div
+        className="devotio-fill"
+        style={{ width: `${value}%` }}
+      />
+    </div>
+    <div className="devotio-value">{value}</div>
+  </div>
+)
+
+const getWeightInsight = (period) => {
+  const weights = [
+    { name: 'Cognitio', value: period.weight_cognitive },
+    { name: 'Voluntas', value: period.weight_volitional },
+    { name: 'Sympathia', value: period.weight_emotional },
+    { name: 'Labor', value: period.weight_physical },
+  ]
+
+  const sorted = [...weights].sort((a, b) => b.value - a.value)
+  const scarcest = sorted[0]
+  const abundant = sorted[3]
+
+  return `${scarcest.name} was scarcest this period (${(scarcest.value * 100).toFixed(1)}% weight), while ${abundant.name} was most abundant (${(abundant.value * 100).toFixed(1)}% weight). Those who contributed ${scarcest.name} get a better exchange rate.`
+}
 
 export function Dashboard({ onBack, memberId }) {
   const { signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState('actions')
+  const [activeTab, setActiveTab] = useState('economics')
+
+  // Economics tab state
   const [loading, setLoading] = useState(true)
-  const [actions, setActions] = useState([])
-  const [accumulated, setAccumulated] = useState({
-    totalMinutes: 0,
-    cognitive: 0,
-    volitional: 0,
-    emotional: 0,
-    physical: 0
-  })
+  const [period, setPeriod] = useState(null)
+  const [summary, setSummary] = useState(null)
+  const [devotio, setDevotio] = useState(null)
+  const [treasury, setTreasury] = useState([])
+  const [redeemAmount, setRedeemAmount] = useState('')
+  const [redeeming, setRedeeming] = useState(false)
 
   useEffect(() => {
-    if (memberId) fetchActions()
+    if (memberId) fetchEconomicData()
   }, [memberId])
 
-  async function fetchActions() {
+  const fetchEconomicData = async () => {
+    setLoading(true)
     try {
-      const { data: actionsData } = await supabase
-        .from('actions')
-        .select('*, tasks(name, category)')
+      // Get latest closed period
+      const { data: periodData } = await supabase
+        .from('periods')
+        .select('*')
+        .eq('status', 'closed')
+        .order('period_number', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (periodData) {
+        setPeriod(periodData)
+
+        // Get member summary for this period
+        const { data: summaryData } = await supabase
+          .from('member_period_summary')
+          .select('*, members(name, email)')
+          .eq('member_id', memberId)
+          .eq('period_id', periodData.id)
+          .single()
+
+        setSummary(summaryData)
+
+        // Get treasury movements
+        const { data: treasuryData } = await supabase
+          .from('treasury')
+          .select('*')
+          .eq('period_id', periodData.id)
+          .order('created_at')
+
+        setTreasury(treasuryData || [])
+      }
+
+      // Get DEVOTIO profile
+      const { data: devotioData } = await supabase
+        .from('member_devotio')
+        .select('*')
         .eq('member_id', memberId)
-        .order('performed_at', { ascending: false })
+        .single()
 
-      setActions(actionsData || [])
+      setDevotio(devotioData)
 
-      const acc = (actionsData || []).reduce((sum, action) => ({
-        totalMinutes: sum.totalMinutes + action.duration_minutes,
-        cognitive: sum.cognitive + (action.cognitive * action.duration_minutes),
-        volitional: sum.volitional + (action.volitional * action.duration_minutes),
-        emotional: sum.emotional + (action.emotional * action.duration_minutes),
-        physical: sum.physical + (action.physical * action.duration_minutes),
-      }), { totalMinutes: 0, cognitive: 0, volitional: 0, emotional: 0, physical: 0 })
-
-      setAccumulated(acc)
     } catch (error) {
-      console.error('Error fetching actions:', error)
-    } finally {
-      setLoading(false)
+      console.error('Error fetching data:', error)
     }
+    setLoading(false)
   }
 
-  const formatHours = (minutes) => {
-    const hrs = Math.floor(minutes / 60)
-    const mins = minutes % 60
-    return `${hrs}h ${mins}m`
-  }
+  const handleRedeem = async () => {
+    const amount = parseFloat(redeemAmount)
+    if (isNaN(amount) || amount <= 0) return
 
-  const getPercentages = () => {
-    const total = accumulated.cognitive + accumulated.volitional +
-                  accumulated.emotional + accumulated.physical
-    if (total === 0) return { c: 0, v: 0, e: 0, p: 0 }
-    return {
-      c: Math.round((accumulated.cognitive / total) * 100),
-      v: Math.round((accumulated.volitional / total) * 100),
-      e: Math.round((accumulated.emotional / total) * 100),
-      p: Math.round((accumulated.physical / total) * 100)
+    const available = summary.actions_earned - summary.actions_redeemed
+    if (amount > available) {
+      alert(`Maximum available: ${available.toFixed(2)}`)
+      return
     }
+
+    setRedeeming(true)
+    try {
+      const { data, error } = await supabase.rpc('redeem_actions', {
+        p_member_id: memberId,
+        p_period_id: period.id,
+        p_actions_to_redeem: amount
+      })
+
+      if (error) throw error
+
+      // Refresh data
+      await fetchEconomicData()
+      setRedeemAmount('')
+      alert(`Redeemed ${amount} Actions for ${data[0]?.out_ruban_received?.toFixed(2)} Ruban Cash`)
+    } catch (error) {
+      console.error('Redemption error:', error)
+      alert('Error redeeming: ' + error.message)
+    }
+    setRedeeming(false)
   }
 
-  const pct = getPercentages()
+  const formatPercent = (value) => (value * 100).toFixed(1) + '%'
+  const formatNumber = (value, decimals = 2) =>
+    value ? parseFloat(value).toFixed(decimals) : '0'
+
+  // Economics tab content
+  const renderEconomicsTab = () => {
+    if (loading) {
+      return <div className="eco-loading">Loading economic data...</div>
+    }
+
+    if (!period) {
+      return <div className="eco-empty">No closed periods yet</div>
+    }
+
+    const available = summary ? summary.actions_earned - summary.actions_redeemed : 0
+    const totalIncome = treasury.filter(t => t.amount > 0).reduce((s, t) => s + parseFloat(t.amount), 0)
+
+    return (
+      <div className="eco-content">
+        <header className="eco-header">
+          <h1>Economic Dashboard</h1>
+          <p className="eco-subtitle">Period {period.period_number} · {period.status.toUpperCase()}</p>
+        </header>
+
+        {/* Treasury Section */}
+        <section className="eco-section eco-treasury">
+          <h2>Treasury</h2>
+          <div className="treasury-flow">
+            <div className="treasury-sources">
+              {treasury.filter(t => t.amount > 0).map((t, i) => (
+                <div key={i} className="treasury-item income">
+                  <span className="label">{t.movement_type}</span>
+                  <span className="value">+{formatNumber(t.amount)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="treasury-arrow">→</div>
+            <div className="treasury-total">
+              <div className="label">Total Income</div>
+              <div className="value">${formatNumber(totalIncome)}</div>
+            </div>
+            <div className="treasury-arrow">→</div>
+            <div className="treasury-reserve">
+              <div className="label">Reserve (20%)</div>
+              <div className="value negative">-${formatNumber(totalIncome * 0.2)}</div>
+            </div>
+            <div className="treasury-arrow">→</div>
+            <div className="treasury-surplus">
+              <div className="label">Distributable Surplus</div>
+              <div className="value highlight">${formatNumber(period.total_surplus)}</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Emergent Weights Section */}
+        <section className="eco-section eco-weights">
+          <h2>Emergent Weights</h2>
+          <p className="eco-desc">Scarcity determines value. Less abundant = higher weight.</p>
+          <div className="weights-grid">
+            <WeightBar
+              label="Cognitio"
+              value={period.weight_cognitive}
+              color="var(--cognitio)"
+            />
+            <WeightBar
+              label="Voluntas"
+              value={period.weight_volitional}
+              color="var(--voluntas)"
+            />
+            <WeightBar
+              label="Sympathia"
+              value={period.weight_emotional}
+              color="var(--sympathia)"
+            />
+            <WeightBar
+              label="Labor"
+              value={period.weight_physical}
+              color="var(--labor)"
+            />
+          </div>
+          <p className="weights-insight">
+            {getWeightInsight(period)}
+          </p>
+        </section>
+
+        {/* Personal Profile Section */}
+        {summary && (
+          <section className="eco-section eco-profile">
+            <h2>Your Contribution Profile</h2>
+            <div className="profile-grid">
+              <div className="profile-actio">
+                <h3>ACTIO Vector</h3>
+                <p className="profile-minutes">{summary.total_minutes} minutes worked</p>
+                <div className="actio-bars">
+                  <ActioBar
+                    label="C"
+                    value={summary.weighted_cognitive / summary.total_minutes}
+                    color="var(--cognitio)"
+                  />
+                  <ActioBar
+                    label="V"
+                    value={summary.weighted_volitional / summary.total_minutes}
+                    color="var(--voluntas)"
+                  />
+                  <ActioBar
+                    label="S"
+                    value={summary.weighted_emotional / summary.total_minutes}
+                    color="var(--sympathia)"
+                  />
+                  <ActioBar
+                    label="L"
+                    value={summary.weighted_physical / summary.total_minutes}
+                    color="var(--labor)"
+                  />
+                </div>
+              </div>
+
+              {devotio && (
+                <div className="profile-devotio">
+                  <h3>DEVOTIO Coefficient</h3>
+                  <div className="devotio-value">{formatNumber(summary.devotio_coefficient, 2)}×</div>
+                  <div className="devotio-bars">
+                    <DevotioBar label="Vocatio" value={devotio.vocatio} />
+                    <DevotioBar label="Opus" value={devotio.opus} />
+                    <DevotioBar label="Societas" value={devotio.societas} />
+                    <DevotioBar label="Familia" value={devotio.familia} />
+                    <DevotioBar label="Salus" value={devotio.salus} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Exchange Rate Section */}
+        {summary && (
+          <section className="eco-section eco-exchange">
+            <h2>Personal Exchange Rate</h2>
+            <div className="exchange-formula">
+              <span className="formula-part" style={{color: 'var(--cognitio)'}}>
+                {formatPercent(summary.weighted_cognitive / summary.total_minutes)} × {formatNumber(period.weight_cognitive, 3)}
+              </span>
+              <span className="formula-op">+</span>
+              <span className="formula-part" style={{color: 'var(--voluntas)'}}>
+                {formatPercent(summary.weighted_volitional / summary.total_minutes)} × {formatNumber(period.weight_volitional, 3)}
+              </span>
+              <span className="formula-op">+</span>
+              <span className="formula-part" style={{color: 'var(--sympathia)'}}>
+                {formatPercent(summary.weighted_emotional / summary.total_minutes)} × {formatNumber(period.weight_emotional, 3)}
+              </span>
+              <span className="formula-op">+</span>
+              <span className="formula-part" style={{color: 'var(--labor)'}}>
+                {formatPercent(summary.weighted_physical / summary.total_minutes)} × {formatNumber(period.weight_physical, 3)}
+              </span>
+              <span className="formula-op">=</span>
+              <span className="formula-result">{formatNumber(summary.exchange_rate, 4)}</span>
+            </div>
+            <p className="exchange-insight">
+              Your profile weighted in scarce dimensions gives you a
+              {summary.exchange_rate > 0.25 ? ' favorable' : ' standard'} exchange rate.
+            </p>
+          </section>
+        )}
+
+        {/* Actions & Ruban Section */}
+        {summary && (
+          <section className="eco-section eco-actions">
+            <h2>Actions & Ruban Cash</h2>
+            <div className="actions-grid">
+              <div className="action-card">
+                <div className="card-label">Actions Earned</div>
+                <div className="card-value">{formatNumber(summary.actions_earned)}</div>
+                <div className="card-formula">
+                  {summary.total_minutes} min × {formatNumber(summary.exchange_rate, 4)} × {formatNumber(summary.devotio_coefficient)}
+                </div>
+              </div>
+              <div className="action-card">
+                <div className="card-label">Actions Redeemed</div>
+                <div className="card-value redeemed">{formatNumber(summary.actions_redeemed)}</div>
+              </div>
+              <div className="action-card">
+                <div className="card-label">Actions Accumulated</div>
+                <div className="card-value accumulated">{formatNumber(available)}</div>
+                <div className="card-note">Future stake</div>
+              </div>
+              <div className="action-card highlight">
+                <div className="card-label">Ruban Cash Received</div>
+                <div className="card-value ruban">₽ {formatNumber(summary.ruban_received)}</div>
+              </div>
+            </div>
+
+            {/* Redemption UI */}
+            <div className="redeem-section">
+              <h3>Redeem or Accumulate</h3>
+              <p className="redeem-desc">
+                Convert Actions to Ruban Cash (liquidity now), or keep accumulating (larger future stake).
+              </p>
+              <div className="redeem-form">
+                <input
+                  type="number"
+                  placeholder="Actions to redeem"
+                  value={redeemAmount}
+                  onChange={(e) => setRedeemAmount(e.target.value)}
+                  max={available}
+                  step="0.01"
+                />
+                <span className="available">Available: {formatNumber(available)}</span>
+                <button
+                  onClick={handleRedeem}
+                  disabled={redeeming || !redeemAmount}
+                  className="redeem-btn"
+                >
+                  {redeeming ? 'Processing...' : 'Redeem'}
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Cycle Visual */}
+        <section className="eco-section eco-cycle">
+          <h2>The Cycle</h2>
+          <div className="cycle-visual">
+            <div className="cycle-step">
+              <div className="step-num">1</div>
+              <div className="step-text">Work</div>
+            </div>
+            <div className="cycle-arrow">→</div>
+            <div className="cycle-step">
+              <div className="step-num">2</div>
+              <div className="step-text">Register</div>
+            </div>
+            <div className="cycle-arrow">→</div>
+            <div className="cycle-step">
+              <div className="step-num">3</div>
+              <div className="step-text">Close</div>
+            </div>
+            <div className="cycle-arrow">→</div>
+            <div className="cycle-step active">
+              <div className="step-num">4</div>
+              <div className="step-text">Decide</div>
+            </div>
+            <div className="cycle-arrow">→</div>
+            <div className="cycle-step">
+              <div className="step-num">5</div>
+              <div className="step-text">Anchor</div>
+            </div>
+            <div className="cycle-arrow">↺</div>
+          </div>
+        </section>
+
+        <footer className="eco-footer">
+          <p>"We recognize that human effort has texture, and distribution must honor that texture."</p>
+          <span>— Gift Economy 2.0</span>
+        </footer>
+      </div>
+    )
+  }
 
   return (
     <div className="dashboard-view">
@@ -142,73 +465,7 @@ export function Dashboard({ onBack, memberId }) {
 
       {/* Content Area */}
       <div className="dashboard-content">
-        {activeTab === 'actions' && (
-          <div className="finances-container">
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <>
-                <div className="summary-card">
-                  <h2>Total Contribution</h2>
-                  <div className="total-time">{formatHours(accumulated.totalMinutes)}</div>
-
-                  <div className="vector-bars">
-                    <div className="vector-row">
-                      <span className="vector-label">Cognitio</span>
-                      <div className="vector-bar">
-                        <div className="vector-fill cognitive" style={{ width: `${pct.c}%` }}></div>
-                      </div>
-                      <span className="vector-value">{pct.c}%</span>
-                    </div>
-                    <div className="vector-row">
-                      <span className="vector-label">Voluntas</span>
-                      <div className="vector-bar">
-                        <div className="vector-fill volitional" style={{ width: `${pct.v}%` }}></div>
-                      </div>
-                      <span className="vector-value">{pct.v}%</span>
-                    </div>
-                    <div className="vector-row">
-                      <span className="vector-label">Sympathia</span>
-                      <div className="vector-bar">
-                        <div className="vector-fill emotional" style={{ width: `${pct.e}%` }}></div>
-                      </div>
-                      <span className="vector-value">{pct.e}%</span>
-                    </div>
-                    <div className="vector-row">
-                      <span className="vector-label">Labor</span>
-                      <div className="vector-bar">
-                        <div className="vector-fill physical" style={{ width: `${pct.p}%` }}></div>
-                      </div>
-                      <span className="vector-value">{pct.p}%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="actions-list">
-                  <h2>Recent Actions</h2>
-                  {actions.length === 0 ? (
-                    <p>No actions recorded yet</p>
-                  ) : (
-                    actions.map(action => (
-                      <div key={action.id} className="action-item">
-                        <div className="action-info">
-                          <span className="action-task">{action.tasks?.name || 'Unknown task'}</span>
-                          <span className="action-category">{action.tasks?.category}</span>
-                        </div>
-                        <div className="action-meta">
-                          <span className="action-duration">{action.duration_minutes}m</span>
-                          <span className="action-date">
-                            {new Date(action.performed_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        )}
+        {activeTab === 'economics' && renderEconomicsTab()}
 
         {activeTab === 'wallet' && (
           <div className="tab-placeholder">
@@ -216,157 +473,6 @@ export function Dashboard({ onBack, memberId }) {
             <p>View your balance and transactions</p>
           </div>
         )}
-
-        {activeTab === 'finances' && (() => {
-          const totalRevenue = REVENUE_DATA.reduce((sum, i) => sum + i.amount, 0)
-          const totalExpenses = EXPENSES_DATA.reduce((sum, i) => sum + i.amount, 0)
-          const profit = totalRevenue - totalExpenses
-          const treasuryDeduction = Math.round(profit * 0.1)
-          const profitAvailable = profit - treasuryDeduction
-          const exchangeRate = 0.85
-          const rbcIssued = Math.round(profitAvailable * exchangeRate)
-          const rbcRedeemed = 65000
-          const rbcRemaining = rbcIssued - rbcRedeemed
-          const myRbcEntitlement = 4250
-
-          return (
-            <div className="finances-tab">
-              {/* Treasury - full width */}
-              <div className="finance-table-container full-width">
-                <h2>Treasury</h2>
-                <table className="finance-table">
-                  <thead>
-                    <tr>
-                      <th>Currency</th>
-                      <th>Amount</th>
-                      <th>USD Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {TREASURY_DATA.map(item => (
-                      <tr key={item.currency}>
-                        <td>{item.currency}</td>
-                        <td className="amount">{item.currency === 'BTC' ? item.amount.toFixed(2) : item.amount.toLocaleString()}</td>
-                        <td className="amount">${item.usdValue.toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="total-row">
-                      <td colSpan="2">Total</td>
-                      <td className="amount">${TREASURY_DATA.reduce((sum, i) => sum + i.usdValue, 0).toLocaleString()}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-
-              {/* Revenue and Expenses side by side */}
-              <div className="finances-row">
-                <div className="finance-table-container">
-                  <h2>Revenue</h2>
-                  <table className="finance-table">
-                    <thead>
-                      <tr>
-                        <th>Source</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {REVENUE_DATA.map(item => (
-                        <tr key={item.source}>
-                          <td>{item.source}</td>
-                          <td className="amount">${item.amount.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="total-row">
-                        <td>Total Revenue</td>
-                        <td className="amount">${totalRevenue.toLocaleString()}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-
-                <div className="finance-table-container">
-                  <h2>Expenses</h2>
-                  <table className="finance-table">
-                    <thead>
-                      <tr>
-                        <th>Category</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {EXPENSES_DATA.map(item => (
-                        <tr key={item.category}>
-                          <td>{item.category}</td>
-                          <td className="amount">${item.amount.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="total-row">
-                        <td>Total Expenses</td>
-                        <td className="amount">${totalExpenses.toLocaleString()}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-
-              {/* Profit calculation */}
-              <div className="profit-summary">
-                <span>Revenue</span>
-                <span className="profit-operator">-</span>
-                <span>Expenses</span>
-                <span className="profit-operator">=</span>
-                <span className="profit-result">${profit.toLocaleString()}</span>
-              </div>
-
-              {/* Ruban Coin section */}
-              <div className="finance-table-container full-width">
-                <h2>Ruban Coin</h2>
-                <table className="finance-table rbc-table">
-                  <tbody>
-                    <tr>
-                      <td>Profit (USD)</td>
-                      <td className="amount">${profit.toLocaleString()}</td>
-                    </tr>
-                    <tr className="deduction-row">
-                      <td>10% Treasury Reserve</td>
-                      <td className="amount negative">-${treasuryDeduction.toLocaleString()}</td>
-                    </tr>
-                    <tr className="subtotal-row">
-                      <td>Total Profit Available</td>
-                      <td className="amount">${profitAvailable.toLocaleString()}</td>
-                    </tr>
-                    <tr>
-                      <td>RBC Issued (@ {exchangeRate} USD/RBC)</td>
-                      <td className="amount rbc">{rbcIssued.toLocaleString()} RBC</td>
-                    </tr>
-                    <tr className="deduction-row">
-                      <td>RBC Delivered (Redeemed Actions)</td>
-                      <td className="amount rbc negative">-{rbcRedeemed.toLocaleString()} RBC</td>
-                    </tr>
-                    <tr className="subtotal-row">
-                      <td>RBC Remaining</td>
-                      <td className="amount rbc">{rbcRemaining.toLocaleString()} RBC</td>
-                    </tr>
-                    <tr className="my-rbc-row">
-                      <td>My RBC Entitlement</td>
-                      <td className="amount rbc highlight">{myRbcEntitlement.toLocaleString()} RBC</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div className="rbc-actions">
-                  <button className="rbc-btn restake">Restake</button>
-                  <button className="rbc-btn collect">Collect</button>
-                </div>
-              </div>
-            </div>
-          )
-        })()}
 
         {activeTab === 'calendar' && (
           <div className="tab-placeholder">
