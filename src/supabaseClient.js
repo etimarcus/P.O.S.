@@ -1,6 +1,21 @@
+/**
+ * SUPABASE CLIENT
+ * Shared database with Rubania
+ */
+
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://vgwzrewpzakqypldqyxf.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnd3pyZXdwemFrcXlwbGRxeXhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4NDk4MjUsImV4cCI6MjA4NDQyNTgyNX0.xh_7MCcgiOzd9W8dLNCohSuG_nF_WIcRKOU6Ys9DcoQ'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    })
+  : null
+
+export const isSupabaseConfigured = () => !!supabase
