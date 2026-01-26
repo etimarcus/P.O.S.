@@ -60,12 +60,16 @@ const calculateWordPositions = (words) => {
     const a = 0
     const b = 1.5
 
+    // Account for word width - words are centered, so half extends each direction
+    const minX = 5 + dims.w / 2
+    const maxX = 95 - dims.w / 2
+
     for (let t = 0; t < 200; t += 0.3) {
       const r = a + b * t
       const x = centerX + r * Math.cos(t)
       const y = centerY + r * Math.sin(t) * 0.6
 
-      if (x < 5 || x > 95 || y < 10 || y > 90) continue
+      if (x < minX || x > maxX || y < 10 || y > 90) continue
 
       const newPos = { x, y, w: dims.w, h: dims.h }
 
@@ -76,7 +80,7 @@ const calculateWordPositions = (words) => {
     }
 
     for (let gy = 15; gy <= 85; gy += 8) {
-      for (let gx = 10; gx <= 90; gx += 8) {
+      for (let gx = Math.max(10, minX); gx <= Math.min(90, maxX); gx += 8) {
         const newPos = { x: gx, y: gy, w: dims.w, h: dims.h }
         if (!hasCollision(newPos)) {
           placed.push(newPos)
@@ -121,6 +125,8 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   const inputRef = useRef(null)
   const zoomRef = useRef(zoom)
   const panRef = useRef(pan)
+  const isPanningRef = useRef(false)
+  const panStartRef = useRef({ x: 0, y: 0 })
   const isNavigatingRef = useRef(false)
 
   // Keep refs in sync with state
@@ -580,7 +586,7 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     }
   }
 
-  // Mouse button events (back/forward)
+  // Mouse button events (back/forward/pan)
   useEffect(() => {
     const wrapper = wrapperRef.current
     if (!wrapper) return
@@ -596,27 +602,36 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
         e.preventDefault()
         navigateForward()
       }
-      // Middle button (button 1) - start panning
-      else if (e.button === 1) {
+      // Left button (button 0) - start panning if not on a word
+      else if (e.button === 0 && !e.target.closest('.word-item')) {
         e.preventDefault()
+        isPanningRef.current = true
         setIsPanning(true)
-        setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
+        panStartRef.current = { x: e.clientX - panRef.current.x, y: e.clientY - panRef.current.y }
       }
     }
 
     const handleMouseMove = (e) => {
-      if (isPanning) {
-        setPan({
-          x: e.clientX - panStart.x,
-          y: e.clientY - panStart.y
-        })
+      if (isPanningRef.current) {
+        const newPan = {
+          x: e.clientX - panStartRef.current.x,
+          y: e.clientY - panStartRef.current.y
+        }
+        panRef.current = newPan
+        setPan(newPan)
       }
     }
 
     const handleMouseUp = (e) => {
-      if (e.button === 1) {
+      if (e.button === 0) {
+        isPanningRef.current = false
         setIsPanning(false)
       }
+    }
+
+    const handleMouseLeave = () => {
+      isPanningRef.current = false
+      setIsPanning(false)
     }
 
     // Prevent context menu on back/forward buttons
@@ -629,17 +644,17 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     wrapper.addEventListener('mousedown', handleMouseDown)
     wrapper.addEventListener('mousemove', handleMouseMove)
     wrapper.addEventListener('mouseup', handleMouseUp)
-    wrapper.addEventListener('mouseleave', () => setIsPanning(false))
+    wrapper.addEventListener('mouseleave', handleMouseLeave)
     wrapper.addEventListener('contextmenu', handleContextMenuCapture, true)
 
     return () => {
       wrapper.removeEventListener('mousedown', handleMouseDown)
       wrapper.removeEventListener('mousemove', handleMouseMove)
       wrapper.removeEventListener('mouseup', handleMouseUp)
-      wrapper.removeEventListener('mouseleave', () => setIsPanning(false))
+      wrapper.removeEventListener('mouseleave', handleMouseLeave)
       wrapper.removeEventListener('contextmenu', handleContextMenuCapture, true)
     }
-  }, [navigateBack, navigateForward, isPanning, pan, panStart])
+  }, [navigateBack, navigateForward])
 
   // Wheel zoom - pointer-centered, zoom out to go back, zoom in on word to navigate
   useEffect(() => {
@@ -830,14 +845,14 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
           ref={wrapperRef}
           className="wordcloud-wrapper"
           onContextMenu={handleContainerContextMenu}
+          style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
         >
           <div
             ref={containerRef}
             className={`wordcloud-container ${isTransitioning ? 'transitioning' : ''} ${isPanning ? 'panning' : ''}`}
             style={{
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-              transformOrigin: '0 0',
-              cursor: isPanning ? 'grabbing' : 'default'
+              transformOrigin: '0 0'
             }}
           >
             {currentTopics.map((topic, i) => {

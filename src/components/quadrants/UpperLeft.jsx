@@ -143,15 +143,7 @@ export function UpperLeft({ onNavigate, onShowInfo, onExpand, expanded, userId, 
       setBeings(data || [])
     } catch (err) {
       console.error('Error fetching beings:', err)
-      // Use sample data if table doesn't exist yet
-      setBeings([
-        { id: '1', user_id: currentUserId, layer_type: 'health', label: 'Migraña', value: 2, x: 45, y: 30, description: 'Dolores de cabeza frecuentes', is_validated: false },
-        { id: '2', user_id: currentUserId, layer_type: 'health', label: 'Espalda', value: 4, x: 50, y: 60, description: 'Dolor lumbar crónico', is_validated: true, validated_at: '2024-01-10' },
-        { id: '3', user_id: currentUserId, layer_type: 'skills', label: 'Python', value: 2, x: 30, y: 40, description: 'Deseo aprender programación en Python' },
-        { id: '4', user_id: currentUserId, layer_type: 'skills', label: 'Diseño UX', value: 3, x: 70, y: 45, description: 'Mejorar habilidades de diseño' },
-        { id: '5', user_id: currentUserId, layer_type: 'perception', label: 'Colaborativo', value: 5, x: 25, y: 35, description: 'Muy colaborativo en proyectos de equipo', from_user_id: 'maria' },
-        { id: '6', user_id: currentUserId, layer_type: 'perception', label: 'Comunicador', value: 4, x: 75, y: 50, description: 'Excelente comunicador', from_user_id: 'juan' }
-      ])
+      setBeings([])
     } finally {
       setLoading(false)
     }
