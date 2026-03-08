@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="45" fill="#4a9eff" />
-  <text x="50" y="65" font-size="40" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold">POS</text>
+  <circle cx="50" cy="50" r="45" fill="#14141f" stroke="#e8b84a" stroke-width="3"/>
+  <circle cx="50" cy="50" r="20" fill="#22c55e" opacity="0.3"/>
+  <circle cx="50" cy="30" r="8" fill="#e8b84a"/>
+  <circle cx="67" cy="60" r="8" fill="#e8b84a"/>
+  <circle cx="33" cy="60" r="8" fill="#e8b84a"/>
 </svg>
