@@ -490,10 +490,6 @@ export function Dashboard({ onBack, memberId }) {
 
     return (
       <div className="eco-content">
-        <header className="eco-header">
-          <h1>Economic Dashboard</h1>
-          <p className="eco-subtitle">Period {period.period_number} · {period.status.toUpperCase()}</p>
-        </header>
 
         {/* Treasury Section */}
         <section className="eco-section eco-treasury">
