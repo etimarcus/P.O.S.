@@ -11,7 +11,7 @@ import './Dashboard.css'
 
 // Tab configuration
 const TABS = [
-  { id: 'deliberatorium', label: 'Deliberatorium', icon: '🗺️' },
+  { id: 'deliberatorium', label: 'Deliberatorium', icon: '💡' },
   { id: 'economics', label: 'Economics', icon: '📊' },
   { id: 'cornucopia', label: 'Cornucopia', icon: '🌽' },
   { id: 'wallet', label: 'Wallet', icon: '💰' },
