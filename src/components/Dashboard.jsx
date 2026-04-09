@@ -353,7 +353,7 @@ const getWeightInsight = (period) => {
 
 export function Dashboard({ onBack, memberId }) {
   const { signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState('cornucopia')
+  const [activeTab, setActiveTab] = useState('deliberatorium')
 
   // Economics tab state
   const [loading, setLoading] = useState(true)
