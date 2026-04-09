@@ -192,11 +192,6 @@ function ArgumentMap() {
 
   return (
     <div className="delib-tab">
-      <header className="delib-header">
-        <h1>Deliberatorium</h1>
-        <p className="delib-subtitle">Canonical Reasoning Map — structured collective intelligence</p>
-      </header>
-
       {/* Legend */}
       <div className="delib-legend">
         {Object.entries(NODE_TYPES).map(([key, style]) => (
