@@ -15,6 +15,7 @@ import './LowerLeft.css'
 // ═══════════════════════════════════════════
 
 const LAYERS = ['HOMESTEAD', 'GUILD', 'CELL']
+const PREVIEW_COUNT = 3
 
 const COLORS = {
   cognitio: '#BA7517',
@@ -22,31 +23,46 @@ const COLORS = {
   labor: '#993C1D'
 }
 
-const DIM_LABELS = { cognitio: 'C', sympathia: 'S', labor: 'L' }
-
 // ═══════════════════════════════════════════
 // MOCK DATA
 // ═══════════════════════════════════════════
 
 const MOCK_TASKS = {
   HOMESTEAD: [
-    { id: '1', title: 'Mediación vecinal — domo 3', cognitio: 0.20, sympathia: 0.60, labor: 0.20, spots: 2, filled: 0, V: 1.4, hours_est: 2, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Facilitar conversación entre vecinos del domo 3 sobre uso de espacios comunes', resources: 'Sala de reuniones, pizarra' },
-    { id: '2', title: 'Cocina colectiva del martes', cognitio: 0.10, sympathia: 0.50, labor: 0.40, spots: 4, filled: 2, V: 0.8, hours_est: 4, origin: 'DEBATE', status: 'ACTIVE', description: 'Preparar comida comunitaria para 12 personas', resources: 'Cocina comunitaria, ingredientes del huerto' },
-    { id: '3', title: 'Reparación techo domo 4', cognitio: 0.10, sympathia: 0.15, labor: 0.75, spots: 2, filled: 0, V: 1.6, hours_est: 6, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Arreglar filtración detectada en el techo del domo 4', resources: 'Escalera, sellador, lona impermeable' },
+    { id: 'h1',  title: 'Mediación vecinal — domo 3',                    cognitio: 0.20, sympathia: 0.60, labor: 0.20, spots: 2,  filled: 0, V: 1.4, hours_est: 2, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Facilitar conversación entre vecinos del domo 3 sobre uso de espacios comunes', resources: 'Sala de reuniones, pizarra' },
+    { id: 'h2',  title: 'Cocina colectiva del martes',                   cognitio: 0.10, sympathia: 0.50, labor: 0.40, spots: 4,  filled: 3, V: 0.8, hours_est: 4, origin: 'DEBATE', status: 'ACTIVE', description: 'Preparar comida comunitaria para 12 personas', resources: 'Cocina comunitaria, ingredientes del huerto' },
+    { id: 'h3',  title: 'Reparación techo domo 4',                       cognitio: 0.10, sympathia: 0.15, labor: 0.75, spots: 2,  filled: 0, V: 1.6, hours_est: 6, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Arreglar filtración detectada en el techo del domo 4', resources: 'Escalera, sellador, lona impermeable' },
+    { id: 'h4',  title: 'Inventario de herramientas del cobertizo',      cognitio: 0.50, sympathia: 0.10, labor: 0.40, spots: 2,  filled: 1, V: 1.0, hours_est: 3, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Catalogar todas las herramientas y marcar las que necesitan reemplazo', resources: 'Planilla, etiquetas' },
+    { id: 'h5',  title: 'Sesión de lectura comunitaria',                 cognitio: 0.45, sympathia: 0.45, labor: 0.10, spots: 6,  filled: 5, V: 0.5, hours_est: 2, origin: 'DEBATE', status: 'ACTIVE', description: 'Lectura y discusión del capítulo 4 del manual de permacultura', resources: 'Espacio techado, copias del texto' },
+    { id: 'h6',  title: 'Limpieza del sistema de aguas grises',          cognitio: 0.15, sympathia: 0.05, labor: 0.80, spots: 3,  filled: 2, V: 1.3, hours_est: 4, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Desobstruir filtros y revisar cañerías del biodigestor', resources: 'Guantes, herramientas de plomería' },
+    { id: 'h7',  title: 'Cuidado de niños — turno tarde',                cognitio: 0.10, sympathia: 0.70, labor: 0.20, spots: 2,  filled: 2, V: 0.4, hours_est: 4, origin: 'DEBATE', status: 'ACTIVE', description: 'Acompañar a los niños del homestead durante la tarde', resources: 'Espacio de juegos, merienda' },
+    { id: 'h8',  title: 'Preparación de camas de siembra elevadas',      cognitio: 0.20, sympathia: 0.05, labor: 0.75, spots: 4,  filled: 1, V: 1.5, hours_est: 5, origin: 'DEBATE', status: 'ACTIVE', description: 'Construir y rellenar 3 camas elevadas nuevas para la temporada', resources: 'Madera, tierra, compost, clavos' },
+    { id: 'h9',  title: 'Mapeo de biodiversidad del perímetro',          cognitio: 0.65, sympathia: 0.15, labor: 0.20, spots: 2,  filled: 0, V: 1.2, hours_est: 6, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Identificar y registrar especies vegetales y animales del borde del homestead', resources: 'Guía de campo, cámara, cuaderno' },
   ],
   GUILD: [
-    { id: '4', title: 'Diseño del sistema de riego zona B', cognitio: 0.65, sympathia: 0.10, labor: 0.25, spots: 3, filled: 1, V: 1.3, hours_est: 8, origin: 'DEBATE', status: 'ACTIVE', description: 'Planificar e implementar sistema de riego por goteo para la zona B del huerto', resources: 'Tubería PE, goteros, bomba solar' },
-    { id: '5', title: 'Taller de compostaje', cognitio: 0.40, sympathia: 0.35, labor: 0.25, spots: 6, filled: 4, V: 0.6, hours_est: 3, origin: 'DEBATE', status: 'ACTIVE', description: 'Enseñar técnicas de compostaje termofílico', resources: 'Compostera, termómetro, material seco' },
-    { id: '6', title: 'Cosecha invernadero principal', cognitio: 0.05, sympathia: 0.15, labor: 0.80, spots: 8, filled: 3, V: 1.1, hours_est: 5, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Recolectar tomates y pimientos maduros', resources: 'Cajas de cosecha, tijeras de poda' },
+    { id: 'g1',  title: 'Diseño del sistema de riego zona B',            cognitio: 0.65, sympathia: 0.10, labor: 0.25, spots: 3,  filled: 1, V: 1.3, hours_est: 8, origin: 'DEBATE', status: 'ACTIVE', description: 'Planificar e implementar sistema de riego por goteo para la zona B del huerto', resources: 'Tubería PE, goteros, bomba solar' },
+    { id: 'g2',  title: 'Taller de compostaje termofílico',              cognitio: 0.40, sympathia: 0.35, labor: 0.25, spots: 6,  filled: 5, V: 0.6, hours_est: 3, origin: 'DEBATE', status: 'ACTIVE', description: 'Enseñar técnicas de compostaje termofílico a nuevos miembros', resources: 'Compostera, termómetro, material seco' },
+    { id: 'g3',  title: 'Cosecha invernadero principal',                 cognitio: 0.05, sympathia: 0.15, labor: 0.80, spots: 8,  filled: 7, V: 1.1, hours_est: 5, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Recolectar tomates y pimientos maduros', resources: 'Cajas de cosecha, tijeras de poda' },
+    { id: 'g4',  title: 'Calibración del panel solar del galpón',        cognitio: 0.60, sympathia: 0.05, labor: 0.35, spots: 2,  filled: 1, V: 1.4, hours_est: 4, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Ajustar ángulo e inspeccionar conexiones del sistema fotovoltaico', resources: 'Multímetro, llave Allen, documentación del inversor' },
+    { id: 'g5',  title: 'Planificación rotación de cultivos Q3',         cognitio: 0.70, sympathia: 0.15, labor: 0.15, spots: 4,  filled: 3, V: 0.9, hours_est: 6, origin: 'DEBATE', status: 'ACTIVE', description: 'Definir qué se planta en cada parcela para el próximo trimestre', resources: 'Mapa de parcelas, historial de cultivos' },
+    { id: 'g6',  title: 'Reparación cerca perimetral norte',             cognitio: 0.05, sympathia: 0.10, labor: 0.85, spots: 5,  filled: 2, V: 1.5, hours_est: 8, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Reemplazar postes rotos y tensar alambre en el sector norte', resources: 'Postes de madera, alambre, tensores, cemento' },
+    { id: 'g7',  title: 'Taller de fermentación de alimentos',           cognitio: 0.35, sympathia: 0.40, labor: 0.25, spots: 8,  filled: 8, V: 0.3, hours_est: 3, origin: 'DEBATE', status: 'ACTIVE', description: 'Preparar chucrut, kimchi y kéfir de agua en grupo', resources: 'Frascos, sal, vegetales, granos de kéfir' },
+    { id: 'g8',  title: 'Revisión del sistema de captación de lluvia',   cognitio: 0.45, sympathia: 0.05, labor: 0.50, spots: 3,  filled: 0, V: 1.6, hours_est: 5, origin: 'DEBATE', status: 'ACTIVE', description: 'Inspeccionar tanques, canaletas y filtros antes de temporada seca', resources: 'Escalera, sellador, repuestos de filtro' },
+    { id: 'g9',  title: 'Construcción de secador solar de alimentos',    cognitio: 0.30, sympathia: 0.05, labor: 0.65, spots: 4,  filled: 3, V: 1.2, hours_est: 10, origin: 'DEBATE', status: 'ACTIVE', description: 'Fabricar un deshidratador solar con materiales reciclados', resources: 'Vidrio, madera, malla metálica, pintura negra' },
   ],
   CELL: [
-    { id: '7', title: 'Auditoría energética Q2', cognitio: 0.70, sympathia: 0.10, labor: 0.20, spots: 4, filled: 2, V: 1.5, hours_est: 16, origin: 'DEBATE', status: 'ACTIVE', description: 'Medir consumo energético de todos los domos y sistemas comunes', resources: 'Multímetro, planilla de registro, acceso al inversor' },
-    { id: '8', title: 'Festival de bienvenida nuevos miembros', cognitio: 0.15, sympathia: 0.65, labor: 0.20, spots: 12, filled: 5, V: 0.7, hours_est: 8, origin: 'DEBATE', status: 'ACTIVE', description: 'Organizar jornada de integración para 15 nuevos miembros de la célula', resources: 'Espacio anfiteatro, comida, música' },
-    { id: '9', title: 'Mantenimiento caminos internos', cognitio: 0.05, sympathia: 0.10, labor: 0.85, spots: 10, filled: 2, V: 1.8, hours_est: 12, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Reparar y nivelar caminos erosionados por lluvias', resources: 'Grava, palas, carretillas, compactadora' },
+    { id: 'c1',  title: 'Auditoría energética Q2',                       cognitio: 0.70, sympathia: 0.10, labor: 0.20, spots: 4,  filled: 2, V: 1.5, hours_est: 16, origin: 'DEBATE', status: 'ACTIVE', description: 'Medir consumo energético de todos los domos y sistemas comunes', resources: 'Multímetro, planilla de registro, acceso al inversor' },
+    { id: 'c2',  title: 'Festival de bienvenida nuevos miembros',        cognitio: 0.15, sympathia: 0.65, labor: 0.20, spots: 12, filled: 11, V: 0.7, hours_est: 8, origin: 'DEBATE', status: 'ACTIVE', description: 'Organizar jornada de integración para 15 nuevos miembros de la célula', resources: 'Espacio anfiteatro, comida, música' },
+    { id: 'c3',  title: 'Mantenimiento caminos internos',                cognitio: 0.05, sympathia: 0.10, labor: 0.85, spots: 10, filled: 2, V: 1.8, hours_est: 12, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Reparar y nivelar caminos erosionados por lluvias', resources: 'Grava, palas, carretillas, compactadora' },
+    { id: 'c4',  title: 'Diseño del mercado interno mensual',            cognitio: 0.40, sympathia: 0.40, labor: 0.20, spots: 6,  filled: 5, V: 0.8, hours_est: 10, origin: 'DEBATE', status: 'ACTIVE', description: 'Planificar logística y layout para el mercado de trueque de la célula', resources: 'Planos del espacio, mesas, toldos' },
+    { id: 'c5',  title: 'Instalación de postes de iluminación solar',    cognitio: 0.25, sympathia: 0.05, labor: 0.70, spots: 8,  filled: 6, V: 1.2, hours_est: 12, origin: 'DEBATE', status: 'ACTIVE', description: 'Colocar 12 luminarias solares en los caminos principales', resources: 'Postes, luminarias, cemento, cables' },
+    { id: 'c6',  title: 'Censo de habilidades y oficios de la célula',   cognitio: 0.55, sympathia: 0.35, labor: 0.10, spots: 5,  filled: 4, V: 0.9, hours_est: 8, origin: 'DEBATE', status: 'ACTIVE', description: 'Entrevistar a todos los miembros y construir un directorio de competencias', resources: 'Formulario digital, espacio de entrevista' },
+    { id: 'c7',  title: 'Jornada de plantación de árboles frutales',     cognitio: 0.10, sympathia: 0.25, labor: 0.65, spots: 20, filled: 18, V: 0.5, hours_est: 6, origin: 'DEBATE', status: 'ACTIVE', description: 'Plantar 50 frutales en la zona de food forest de la célula', resources: 'Plantines, palas, mulch, riego temporal' },
+    { id: 'c8',  title: 'Redacción del protocolo de resolución de conflictos', cognitio: 0.60, sympathia: 0.30, labor: 0.10, spots: 3, filled: 2, V: 1.3, hours_est: 12, origin: 'DEBATE', status: 'ACTIVE', description: 'Documentar proceso formal de mediación y escalamiento para la célula', resources: 'Documentos de referencia, espacio de trabajo' },
+    { id: 'c9',  title: 'Limpieza general de espacios comunes',          cognitio: 0.05, sympathia: 0.15, labor: 0.80, spots: 15, filled: 14, V: 0.4, hours_est: 4, origin: 'SPONTANEOUS', status: 'ACTIVE', description: 'Barrer, ordenar y desinfectar todos los espacios de uso compartido', resources: 'Escobas, trapos, productos de limpieza' },
   ]
 }
 
-// Collective vectors per layer (aggregated from member ACTIO records)
 const MOCK_COLLECTIVE = {
   HOMESTEAD: { cognitio: 0.15, sympathia: 0.62, labor: 0.23 },
   GUILD:     { cognitio: 0.38, sympathia: 0.28, labor: 0.34 },
@@ -57,35 +73,27 @@ const MOCK_COLLECTIVE = {
 // SVG HELPERS
 // ═══════════════════════════════════════════
 
-/** Render a ternary composition triangle as inline SVG */
 function TriSVG({ c, s, l, size = 48 }) {
-  // Equilateral triangle vertices
   const h = size * (Math.sqrt(3) / 2)
   const pts = [
-    [size / 2, 0],        // top — Cognitio
-    [size, h],            // bottom-right — Sympathia
-    [0, h],               // bottom-left — Labor
+    [size / 2, 0],
+    [size, h],
+    [0, h],
   ]
-
-  // Barycentric point from (c, s, l) proportions
   const px = c * pts[0][0] + s * pts[1][0] + l * pts[2][0]
   const py = c * pts[0][1] + s * pts[1][1] + l * pts[2][1]
 
   return (
     <svg width={size} height={h} viewBox={`0 0 ${size} ${h}`} className="tri-svg">
-      {/* Colored regions — simplified as three sub-triangles from center point */}
       <polygon points={`${pts[0][0]},${pts[0][1]} ${px},${py} ${pts[2][0]},${pts[2][1]}`} fill={COLORS.cognitio} opacity="0.7" />
       <polygon points={`${pts[0][0]},${pts[0][1]} ${pts[1][0]},${pts[1][1]} ${px},${py}`} fill={COLORS.sympathia} opacity="0.7" />
       <polygon points={`${pts[2][0]},${pts[2][1]} ${px},${py} ${pts[1][0]},${pts[1][1]}`} fill={COLORS.labor} opacity="0.7" />
-      {/* Outline */}
       <polygon points={pts.map(p => p.join(',')).join(' ')} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-      {/* Composition point */}
       <circle cx={px} cy={py} r={size * 0.06} fill="#fff" stroke="rgba(0,0,0,0.4)" strokeWidth="0.5" />
     </svg>
   )
 }
 
-/** Horizontal composition bar */
 function CompositionBar({ c, s, l }) {
   return (
     <div className="we-comp-bar">
@@ -107,7 +115,6 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
   const collective = MOCK_COLLECTIVE[activeLayer]
   const tasks = MOCK_TASKS[activeLayer]
 
-  // Identify scarcest dimension
   const scarcity = useMemo(() => {
     const dims = [
       { key: 'cognitio', label: 'Cognitio', val: collective.cognitio },
@@ -118,10 +125,13 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
     return dims[0]
   }, [collective])
 
-  // Sort tasks: those covering the scarcest dimension first (highest proportion in scarce dim)
+  // Sort: most subscribed first (filled/spots ratio descending)
   const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => b[scarcity.key] - a[scarcity.key])
-  }, [tasks, scarcity])
+    return [...tasks].sort((a, b) => (b.filled / b.spots) - (a.filled / a.spots))
+  }, [tasks])
+
+  // In grid view show only PREVIEW_COUNT, in expanded show all
+  const visibleTasks = expanded ? sortedTasks : sortedTasks.slice(0, PREVIEW_COUNT)
 
   const handleClick = () => {
     if (!expanded) {
@@ -191,7 +201,7 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
 
         {/* Task list */}
         <div className="we-task-list" onClick={e => e.stopPropagation()}>
-          {sortedTasks.map(task => (
+          {visibleTasks.map(task => (
             <div
               key={task.id}
               className={`we-task-card ${expandedTask?.id === task.id ? 'expanded' : ''}`}
@@ -231,6 +241,13 @@ export function LowerLeft({ onNavigate, onShowInfo, onExpand, expanded, userId }
               )}
             </div>
           ))}
+
+          {/* Show count hint in grid mode */}
+          {!expanded && sortedTasks.length > PREVIEW_COUNT && (
+            <div className="we-more-hint" onClick={(e) => { e.stopPropagation(); onExpand?.(); }}>
+              +{sortedTasks.length - PREVIEW_COUNT} more tasks — click to expand
+            </div>
+          )}
         </div>
       </div>
     </div>

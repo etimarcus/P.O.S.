@@ -169,6 +169,7 @@
   padding: 0.7rem 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 320px;
 }
 
 .we-task-card:hover {
@@ -209,9 +210,6 @@
   font-size: 1.05rem;
   font-weight: 700;
   color: #e8e4d9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .we-task-spots {
@@ -323,17 +321,39 @@
 }
 
 /* ═══════════════════════════════════════════
+   MORE HINT (grid mode)
+═══════════════════════════════════════════ */
+
+.we-more-hint {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.we-more-hint:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ═══════════════════════════════════════════
    EXPANDED QUADRANT
 ═══════════════════════════════════════════ */
 
 .quadrant-ll.expanded .we-content {
   padding: 2rem 3rem;
-  max-width: 700px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
 .quadrant-ll.expanded .we-title {
   font-size: 0.8rem;
+}
+
+.quadrant-ll.expanded .we-task-card {
+  min-width: 540px;
 }
 
 .quadrant-ll.expanded .we-task-title {
