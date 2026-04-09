@@ -1805,3 +1805,221 @@
 .use-text strong {
   color: var(--accent-gold, #c9a227);
 }
+
+/* ═══════════════════════════════════════════
+   DELIBERATORIUM TAB
+═══════════════════════════════════════════ */
+
+.delib-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.delib-header h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-light, #e8e4d9);
+  margin: 0 0 0.25rem 0;
+}
+
+.delib-subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  margin: 0;
+}
+
+/* Legend */
+.delib-legend {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.delib-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.delib-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.delib-legend-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-light, #e8e4d9);
+  font-weight: 500;
+}
+
+.delib-legend-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted, #888);
+  margin-left: auto;
+}
+
+/* Canvas */
+.delib-canvas {
+  flex: 1;
+  min-height: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.delib-canvas svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.delib-canvas svg text {
+  pointer-events: none;
+  user-select: none;
+}
+
+.delib-canvas svg g[style*="cursor: grab"]:active {
+  cursor: grabbing;
+}
+
+/* Detail panel */
+.delib-detail {
+  background: rgba(18, 18, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.delib-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.delib-detail-type {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.delib-detail-close {
+  background: none;
+  border: none;
+  color: var(--text-muted, #888);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.delib-detail-close:hover {
+  color: var(--text-light, #e8e4d9);
+}
+
+.delib-detail-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--text-light, #e8e4d9);
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+.delib-detail-connections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.delib-detail-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.delib-connection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.delib-connection:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.conn-dir {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  width: 14px;
+}
+
+.conn-type {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.conn-target {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+.delib-footer-note {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+  text-align: center;
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .delib-tab {
+    padding: 1rem;
+  }
+
+  .delib-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .delib-legend {
+    gap: 0.75rem;
+  }
+
+  .delib-legend-count {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .delib-detail {
+    max-height: 160px;
+  }
+}

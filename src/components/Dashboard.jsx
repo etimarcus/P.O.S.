@@ -4,7 +4,7 @@
  * Top bar with tabs, content area below
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import './Dashboard.css'
@@ -12,11 +12,261 @@ import './Dashboard.css'
 // Tab configuration
 const TABS = [
   { id: 'cornucopia', label: 'Cornucopia', icon: '🌽' },
+  { id: 'deliberatorium', label: 'Deliberatorium', icon: '🗺️' },
   { id: 'economics', label: 'Economics', icon: '📊' },
   { id: 'wallet', label: 'Wallet', icon: '💰' },
   { id: 'calendar', label: 'Calendar', icon: '📅' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ]
+
+// ═══════════════════════════════════════════
+// DELIBERATORIUM — Argument Map
+// ═══════════════════════════════════════════
+
+const NODE_TYPES = {
+  topic:  { label: 'Topic',          color: '#2a6cb8', bg: 'rgba(42,108,184,0.15)', border: 'rgba(42,108,184,0.5)' },
+  question: { label: 'Question',     color: '#c9a227', bg: 'rgba(201,162,39,0.15)', border: 'rgba(201,162,39,0.5)' },
+  aspect: { label: 'Aspect',         color: '#9b6bbf', bg: 'rgba(155,107,191,0.15)', border: 'rgba(155,107,191,0.5)' },
+  pro:    { label: 'Pro Argument',   color: '#3a9e6e', bg: 'rgba(58,158,110,0.15)', border: 'rgba(58,158,110,0.5)' },
+  contra: { label: 'Contra Argument', color: '#c94444', bg: 'rgba(201,68,68,0.15)',  border: 'rgba(201,68,68,0.5)' },
+}
+
+const EDGE_TYPES = {
+  part_of:    'is part of',
+  answers:    'answers',
+  supports:   'supports',
+  challenges: 'challenges',
+}
+
+// Mock argument map about sustainable agriculture
+const MOCK_NODES = [
+  { id: 'n1',  type: 'topic',    text: 'Sustainable Agriculture',                    x: 480, y: 40 },
+  { id: 'n2',  type: 'question', text: 'Should we prioritize permaculture methods?',  x: 200, y: 140 },
+  { id: 'n3',  type: 'question', text: 'Should we buy organic inputs?',               x: 520, y: 160 },
+  { id: 'n4',  type: 'question', text: 'Should we invest in aquaponics?',             x: 820, y: 140 },
+  { id: 'n5',  type: 'aspect',   text: 'Soil health and regeneration',                x: 80,  y: 280 },
+  { id: 'n6',  type: 'aspect',   text: 'Cost-effectiveness',                          x: 380, y: 300 },
+  { id: 'n7',  type: 'aspect',   text: 'Water management',                            x: 700, y: 280 },
+  { id: 'n8',  type: 'pro',      text: 'Permaculture builds long-term soil fertility without external inputs', x: 50, y: 420 },
+  { id: 'n9',  type: 'pro',      text: 'Food forests require less labor once established',                     x: 250, y: 440 },
+  { id: 'n10', type: 'contra',   text: 'Permaculture yields are lower in the first 3 years',                   x: 100, y: 550 },
+  { id: 'n11', type: 'pro',      text: 'Organic inputs improve biodiversity and pollinator habitat',            x: 420, y: 430 },
+  { id: 'n12', type: 'contra',   text: 'Certified organic inputs are expensive and hard to source locally',     x: 550, y: 550 },
+  { id: 'n13', type: 'pro',      text: 'Aquaponics produces protein and vegetables in a closed loop',          x: 750, y: 420 },
+  { id: 'n14', type: 'contra',   text: 'Aquaponics requires significant upfront capital and electricity',       x: 850, y: 550 },
+  { id: 'n15', type: 'aspect',   text: 'Labor allocation',                            x: 200, y: 300 },
+  { id: 'n16', type: 'pro',      text: 'Local composting eliminates need for purchased fertilizers',            x: 320, y: 560 },
+  { id: 'n17', type: 'contra',   text: 'Water-intensive crops strain the shared irrigation system',             x: 680, y: 550 },
+]
+
+const MOCK_EDGES = [
+  { from: 'n2',  to: 'n1',  type: 'part_of' },
+  { from: 'n3',  to: 'n1',  type: 'part_of' },
+  { from: 'n4',  to: 'n1',  type: 'part_of' },
+  { from: 'n5',  to: 'n2',  type: 'answers' },
+  { from: 'n15', to: 'n2',  type: 'answers' },
+  { from: 'n6',  to: 'n3',  type: 'answers' },
+  { from: 'n7',  to: 'n4',  type: 'answers' },
+  { from: 'n8',  to: 'n5',  type: 'supports' },
+  { from: 'n9',  to: 'n15', type: 'supports' },
+  { from: 'n10', to: 'n8',  type: 'challenges' },
+  { from: 'n11', to: 'n6',  type: 'supports' },
+  { from: 'n12', to: 'n11', type: 'challenges' },
+  { from: 'n16', to: 'n12', type: 'challenges' },
+  { from: 'n13', to: 'n7',  type: 'supports' },
+  { from: 'n14', to: 'n13', type: 'challenges' },
+  { from: 'n17', to: 'n7',  type: 'challenges' },
+]
+
+function ArgumentMap() {
+  const svgRef = useRef(null)
+  const containerRef = useRef(null)
+  const [nodes, setNodes] = useState(MOCK_NODES)
+  const [selectedNode, setSelectedNode] = useState(null)
+  const [dragState, setDragState] = useState(null)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isPanning, setIsPanning] = useState(false)
+  const panStart = useRef(null)
+
+  const nodeMap = useMemo(() => {
+    const m = {}
+    nodes.forEach(n => { m[n.id] = n })
+    return m
+  }, [nodes])
+
+  // Drag node
+  const handleNodeMouseDown = useCallback((e, nodeId) => {
+    e.stopPropagation()
+    setDragState({ nodeId, startX: e.clientX, startY: e.clientY, origNode: nodeMap[nodeId] })
+  }, [nodeMap])
+
+  // Pan canvas
+  const handleCanvasMouseDown = useCallback((e) => {
+    if (e.target === svgRef.current || e.target.tagName === 'line' || e.target.tagName === 'text') {
+      setIsPanning(true)
+      panStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y }
+    }
+  }, [pan])
+
+  const handleMouseMove = useCallback((e) => {
+    if (dragState) {
+      const dx = e.clientX - dragState.startX
+      const dy = e.clientY - dragState.startY
+      setNodes(prev => prev.map(n =>
+        n.id === dragState.nodeId
+          ? { ...n, x: dragState.origNode.x + dx, y: dragState.origNode.y + dy }
+          : n
+      ))
+    } else if (isPanning && panStart.current) {
+      setPan({ x: e.clientX - panStart.current.x, y: e.clientY - panStart.current.y })
+    }
+  }, [dragState, isPanning])
+
+  const handleMouseUp = useCallback(() => {
+    setDragState(null)
+    setIsPanning(false)
+    panStart.current = null
+  }, [])
+
+  // Edge path with label
+  const renderEdge = useCallback((edge, i) => {
+    const from = nodeMap[edge.from]
+    const to = nodeMap[edge.to]
+    if (!from || !to) return null
+
+    const fx = from.x + 80, fy = from.y + 18
+    const tx = to.x + 80,   ty = to.y + 18
+    const mx = (fx + tx) / 2, my = (fy + ty) / 2
+
+    const edgeColor = edge.type === 'challenges' ? 'rgba(201,68,68,0.4)' :
+                      edge.type === 'supports' ? 'rgba(58,158,110,0.4)' :
+                      'rgba(255,255,255,0.15)'
+
+    return (
+      <g key={i}>
+        <line x1={fx} y1={fy} x2={tx} y2={ty} stroke={edgeColor} strokeWidth="1.5" markerEnd="url(#arrowhead)" />
+        <text x={mx} y={my - 6} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9" fontFamily="'Space Mono', monospace">
+          {EDGE_TYPES[edge.type]}
+        </text>
+      </g>
+    )
+  }, [nodeMap])
+
+  // Node rendering
+  const renderNode = useCallback((node) => {
+    const style = NODE_TYPES[node.type]
+    const isSelected = selectedNode?.id === node.id
+    const w = 160, h = 36
+
+    return (
+      <g key={node.id}
+         transform={`translate(${node.x}, ${node.y})`}
+         onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
+         onClick={(e) => { e.stopPropagation(); setSelectedNode(isSelected ? null : node) }}
+         style={{ cursor: 'grab' }}
+      >
+        <rect
+          x="0" y="0" width={w} height={h} rx="6"
+          fill={style.bg}
+          stroke={isSelected ? style.color : style.border}
+          strokeWidth={isSelected ? 2 : 1}
+        />
+        {node.type === 'question' && (
+          <text x="12" y="23" fill={style.color} fontSize="16" fontWeight="bold">?</text>
+        )}
+        <text
+          x={node.type === 'question' ? 26 : 10} y="14"
+          fill="#e8e4d9" fontSize="10" fontFamily="'Space Mono', monospace"
+          style={{ dominantBaseline: 'hanging' }}
+        >
+          {node.text.length > 24 ? (
+            <>
+              <tspan x={node.type === 'question' ? 26 : 10} dy="0">{node.text.slice(0, 24)}</tspan>
+              <tspan x={node.type === 'question' ? 26 : 10} dy="13">{node.text.slice(24, 48)}{node.text.length > 48 ? '...' : ''}</tspan>
+            </>
+          ) : node.text}
+        </text>
+      </g>
+    )
+  }, [selectedNode, handleNodeMouseDown])
+
+  return (
+    <div className="delib-tab">
+      <header className="delib-header">
+        <h1>Deliberatorium</h1>
+        <p className="delib-subtitle">Canonical Reasoning Map — structured collective intelligence</p>
+      </header>
+
+      {/* Legend */}
+      <div className="delib-legend">
+        {Object.entries(NODE_TYPES).map(([key, style]) => (
+          <div key={key} className="delib-legend-item">
+            <span className="delib-legend-dot" style={{ backgroundColor: style.color }} />
+            <span className="delib-legend-label">{style.label}</span>
+          </div>
+        ))}
+        <span className="delib-legend-count">Connections: {MOCK_EDGES.length}</span>
+      </div>
+
+      {/* Canvas */}
+      <div className="delib-canvas" ref={containerRef}
+           onMouseMove={handleMouseMove}
+           onMouseUp={handleMouseUp}
+           onMouseLeave={handleMouseUp}
+      >
+        <svg ref={svgRef} width="100%" height="100%"
+             onMouseDown={handleCanvasMouseDown}
+             style={{ cursor: isPanning ? 'grabbing' : 'default' }}
+        >
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="rgba(255,255,255,0.3)" />
+            </marker>
+          </defs>
+          <g transform={`translate(${pan.x}, ${pan.y})`}>
+            {MOCK_EDGES.map(renderEdge)}
+            {nodes.map(renderNode)}
+          </g>
+        </svg>
+      </div>
+
+      {/* Detail panel */}
+      {selectedNode && (
+        <div className="delib-detail">
+          <div className="delib-detail-header">
+            <span className="delib-detail-type" style={{ color: NODE_TYPES[selectedNode.type].color }}>
+              {NODE_TYPES[selectedNode.type].label}
+            </span>
+            <button className="delib-detail-close" onClick={() => setSelectedNode(null)}>x</button>
+          </div>
+          <p className="delib-detail-text">{selectedNode.text}</p>
+          <div className="delib-detail-connections">
+            <span className="delib-detail-label">Connections</span>
+            {MOCK_EDGES.filter(e => e.from === selectedNode.id || e.to === selectedNode.id).map((e, i) => {
+              const otherId = e.from === selectedNode.id ? e.to : e.from
+              const other = nodeMap[otherId]
+              if (!other) return null
+              const direction = e.from === selectedNode.id ? '→' : '←'
+              return (
+                <div key={i} className="delib-connection"
+                     onClick={() => setSelectedNode(other)}
+                >
+                  <span className="conn-dir">{direction}</span>
+                  <span className="conn-type">{EDGE_TYPES[e.type]}</span>
+                  <span className="conn-target" style={{ color: NODE_TYPES[other.type].color }}>{other.text.slice(0, 40)}{other.text.length > 40 ? '...' : ''}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      <p className="delib-footer-note">
+        Drag nodes to rearrange. Click a node to inspect connections. Pan the canvas by dragging empty space.
+      </p>
+    </div>
+  )
+}
 
 // Helper Components for Economics tab
 const WeightBar = ({ label, value, color }) => (
@@ -734,6 +984,8 @@ export function Dashboard({ onBack, memberId }) {
             </p>
           </div>
         )}
+
+        {activeTab === 'deliberatorium' && <ArgumentMap />}
 
         {activeTab === 'economics' && renderEconomicsTab()}
 
