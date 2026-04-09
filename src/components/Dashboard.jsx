@@ -11,9 +11,9 @@ import './Dashboard.css'
 
 // Tab configuration
 const TABS = [
-  { id: 'cornucopia', label: 'Cornucopia', icon: '🌽' },
   { id: 'deliberatorium', label: 'Deliberatorium', icon: '🗺️' },
   { id: 'economics', label: 'Economics', icon: '📊' },
+  { id: 'cornucopia', label: 'Cornucopia', icon: '🌽' },
   { id: 'wallet', label: 'Wallet', icon: '💰' },
   { id: 'calendar', label: 'Calendar', icon: '📅' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
