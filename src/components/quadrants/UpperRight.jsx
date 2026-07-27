@@ -68,18 +68,40 @@ const injectDemoBranch = (map) => {
   })
 }
 
-// Calculate positions ensuring no overlap, clustered around center
-const calculateWordPositions = (words) => {
+// Canvas context for measuring real text widths (matches .word-item font)
+const measureCtx = typeof document !== 'undefined'
+  ? document.createElement('canvas').getContext('2d')
+  : null
+
+// Mirror the .word-item font-size media queries in UpperRight.css
+const getWordFontPx = () => {
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+  const w = window.innerWidth
+  if (w <= 360) return 0.9 * rem
+  if (w <= 480) return 1.0 * rem
+  if (w <= 768) return 1.2 * rem
+  return 1.4 * rem
+}
+
+// Calculate positions ensuring no overlap, clustered around center.
+// Word sizes are measured in px and converted to % of the actual container,
+// so long labels stay collision-free at any quadrant size.
+const calculateWordPositions = (words, container) => {
   const placed = []
 
   const getWordDims = (word) => {
-    const charWidth = 2.0
-    const height = 6
-    // +1 char reserves room for the has-children "›" indicator
-    const textLen = (word.text?.length || 5) + 1
+    const fontPx = getWordFontPx()
+    let textPx = ((word.text?.length || 5) + 1) * fontPx * 0.55
+    if (measureCtx) {
+      measureCtx.font = `600 ${fontPx}px 'Cormorant Garamond', serif`
+      textPx = measureCtx.measureText(word.text || '').width
+    }
+    // horizontal padding + room for the has-children "›" indicator
+    const wPx = textPx + fontPx * 1.6
+    const hPx = fontPx * 1.6
     return {
-      w: Math.max(textLen * charWidth, 8),
-      h: height
+      w: Math.min(Math.max((wPx / container.w) * 100, 8), 88),
+      h: Math.max((hPx / container.h) * 100, 4)
     }
   }
 
@@ -165,6 +187,8 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
   const [saving, setSaving] = useState(false)
   const [mouseButtons, setMouseButtons] = useState(0)
   const [hoveredWord, setHoveredWord] = useState(null)
+  const [containerSize, setContainerSize] = useState({ w: 800, h: 600 })
+  const [fontsReady, setFontsReady] = useState(false)
 
   const wrapperRef = useRef(null)  // For mouse position (untransformed)
   const containerRef = useRef(null)  // For the transformed content
@@ -246,17 +270,40 @@ export function UpperRight({ onNavigate, onShowInfo, onExpand, expanded }) {
     fetchWords()
   }, [fetchWords])
 
+  // Track the word cloud container's real size so width estimates stay accurate
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect
+      if (width > 0 && height > 0) {
+        setContainerSize(prev =>
+          Math.abs(prev.w - width) > 1 || Math.abs(prev.h - height) > 1
+            ? { w: width, h: height }
+            : prev
+        )
+      }
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [loading, error])
+
+  // Re-measure once the custom font loads (fallback font has different metrics)
+  useEffect(() => {
+    document.fonts?.ready?.then(() => setFontsReady(true))
+  }, [])
+
   const currentNodeId = path[path.length - 1]
   const currentNode = wordsMap[currentNodeId]
   const currentTopics = currentNode?.children || []
 
   const wordPositions = useMemo(() => {
     if (currentTopics.length === 0) return {}
-    const positions = calculateWordPositions(currentTopics)
+    const positions = calculateWordPositions(currentTopics, containerSize)
     const posMap = {}
     positions.forEach(p => { posMap[p.id] = { x: p.x, y: p.y } })
     return posMap
-  }, [currentTopics])
+  }, [currentTopics, containerSize, fontsReady])
 
   // Navigate to child
   const navigateToChild = useCallback((topicId) => {
